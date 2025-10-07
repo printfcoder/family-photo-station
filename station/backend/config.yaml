@@ -1,0 +1,52 @@
+# 服务器配置
+server:
+  host: "0.0.0.0"
+  port: 8080
+  mode: "debug" # debug, release
+
+# 数据库配置
+database:
+  type: "sqlite" # sqlite, postgres
+  # SQLite配置
+  path: "./data/family_photo_station.db"
+  # PostgreSQL配置 (当type为postgres时使用)
+  host: "localhost"
+  port: 5432
+  user: "postgres"
+  password: "password"
+  name: "family_photo_station"
+  sslmode: "disable"
+  timezone: "Asia/Shanghai"
+  # 连接池配置
+  max_idle_conns: 10
+  max_open_conns: 100
+  conn_max_lifetime: 60 # 分钟
+
+# Redis配置
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
+  pool_size: 10
+
+# JWT配置
+jwt:
+  secret: "your-super-secret-jwt-key-change-this-in-production"
+  access_token_expire: 24 # 小时
+  refresh_token_expire: 7 # 天
+
+# 文件上传配置
+upload:
+  max_file_size: 52428800 # 50MB in bytes
+  allowed_types: ["jpg", "jpeg", "png", "gif", "bmp", "webp", "tiff", "raw", "heic"]
+  storage_path: "./data/photos"
+  thumbnail_path: "./data/thumbnails"
+  temp_path: "./data/temp"
+
+# AI配置
+ai:
+  face_detection_enabled: true
+  auto_tagging_enabled: true
+  model_path: "./models"
+  confidence_threshold: 0.8

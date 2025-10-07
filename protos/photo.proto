@@ -1,0 +1,64 @@
+syntax = "proto3";
+
+package family_photo;
+
+option java_package = "com.familyphoto.models";
+option go_package = "github.com/family-photo-station/models";
+
+// 照片模型
+message Photo {
+  string id = 1;
+  string filename = 2;
+  string original_filename = 3;
+  string mime_type = 4;
+  int64 file_size = 5;
+  string hash = 6;
+  int32 width = 7;
+  int32 height = 8;
+  optional string thumbnail_path = 9;
+  optional ExifData exif_data = 10;
+  optional LocationData location = 11;
+  string uploader_id = 12;
+  optional string device_id = 13;
+  optional string album_id = 14;
+  int64 created_at = 15; // Unix时间戳（毫秒）
+  int64 updated_at = 16; // Unix时间戳（毫秒）
+  optional int64 deleted_at = 17; // Unix时间戳（毫秒）
+  optional string thumbnail_url = 18;
+  optional string url = 19;
+  optional string original_url = 20;
+  optional string medium_url = 21;
+}
+
+// EXIF数据
+message ExifData {
+  optional string camera_make = 1;
+  optional string camera_model = 2;
+  optional string lens_model = 3;
+  optional double focal_length = 4;
+  optional double aperture = 5;
+  optional double shutter_speed = 6;
+  optional int32 iso = 7;
+  optional int64 taken_at = 8; // Unix时间戳（毫秒）
+}
+
+// 位置数据
+message LocationData {
+  double latitude = 1;
+  double longitude = 2;
+  optional double altitude = 3;
+  optional string place_name = 4;
+  optional string country = 5;
+  optional string province = 6;
+  optional string city = 7;
+  optional string district = 8;
+}
+
+// 照片列表
+message PhotoList {
+  repeated Photo photos = 1;
+  int32 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  bool has_more = 5;
+}
