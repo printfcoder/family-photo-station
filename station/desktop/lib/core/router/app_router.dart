@@ -22,10 +22,24 @@ class AppRouter {
       final isAuthenticated = authController.isAuthenticated;
       final isLoading = authController.status == AuthStatus.loading || 
                        authController.status == AuthStatus.initial;
+      final isOffline = authController.status == AuthStatus.offline;
       
       // 如果正在加载，显示启动页
       if (isLoading) {
         return AppRoutes.splash;
+      }
+      
+      // 如果是离线状态，允许进入主页面（仪表板）
+      if (isOffline) {
+        if (state.matchedLocation == AppRoutes.splash) {
+          return AppRoutes.dashboard;
+        }
+        // 离线状态下，不允许访问登录和注册页面
+        if (state.matchedLocation.startsWith('/login') || 
+            state.matchedLocation.startsWith('/register')) {
+          return AppRoutes.dashboard;
+        }
+        return null; // 允许访问其他页面
       }
       
       // 如果未认证且不在认证相关页面，跳转到登录页

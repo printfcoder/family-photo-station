@@ -1,7 +1,9 @@
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:fixnum/fixnum.dart';
 import 'package:family_photo_desktop/core/models/photo.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
+import 'package:family_photo_desktop/core/models/album.pb.dart' as pb;
 
 enum AlbumSortBy { newest, oldest, name, photoCount }
 enum AlbumViewMode { grid, list }
@@ -10,8 +12,8 @@ class AlbumController extends GetxController {
   final ApiService _apiService = Get.find<ApiService>();
 
   // Observable state
-  final RxList<Album> _allAlbums = <Album>[].obs;
-  final RxList<Album> filteredAlbums = <Album>[].obs;
+  final RxList<pb.Album> _allAlbums = <pb.Album>[].obs;
+  final RxList<pb.Album> filteredAlbums = <pb.Album>[].obs;
   final RxBool isLoading = false.obs;
   final RxString error = ''.obs;
   final RxString searchQuery = ''.obs;
@@ -21,7 +23,7 @@ class AlbumController extends GetxController {
   final RxSet<String> selectedAlbums = <String>{}.obs;
 
   // Getters
-  List<Album> get allAlbums => _allAlbums;
+  List<pb.Album> get allAlbums => _allAlbums.toList();
   int get totalAlbums => _allAlbums.length;
   int get selectedCount => selectedAlbums.length;
   bool get hasSelection => selectedAlbums.isNotEmpty;
@@ -41,8 +43,17 @@ class AlbumController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      final albums = await _apiService.getAlbums();
-      _allAlbums.assignAll(albums);
+      final albums = await _apiService.getAlbums(1, 100);
+      // Convert API Album objects to protobuf Album objects
+      final pbAlbums = albums.map((album) => pb.Album(
+        id: album.id,
+        name: album.name,
+        description: album.description ?? '',
+        photoCount: album.photoCount,
+        createdAt: Int64(album.createdAt.millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
+      )).toList();
+      _allAlbums.assignAll(pbAlbums);
       _updateFilteredAlbums();
     } catch (e) {
       error.value = 'Failed to load albums: ${e.toString()}';
@@ -90,7 +101,7 @@ class AlbumController extends GetxController {
   }
 
   void selectAllAlbums() {
-    selectedAlbums.addAll(filteredAlbums.map((album) => album.id));
+    selectedAlbums.addAll(filteredAlbums.where((album) => album.hasId()).map((album) => album.id));
   }
 
   void clearSelection() {
@@ -105,13 +116,23 @@ class AlbumController extends GetxController {
     try {
       isLoading.value = true;
       
-      final album = await _apiService.createAlbum(
-        name: name,
-        description: description,
-        isPrivate: isPrivate,
+      final album = await _apiService.createAlbum({
+        'name': name,
+        'description': description ?? '',
+        'is_private': isPrivate,
+      });
+      
+      // Convert API Album to protobuf Album
+      final pbAlbum = pb.Album(
+        id: album.id,
+        name: album.name,
+        description: album.description ?? '',
+        photoCount: album.photoCount,
+        createdAt: Int64(album.createdAt.millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
       );
       
-      _allAlbums.insert(0, album);
+      _allAlbums.insert(0, pbAlbum);
       _updateFilteredAlbums();
       
       Get.snackbar(
@@ -141,17 +162,26 @@ class AlbumController extends GetxController {
     bool? isPrivate,
   }) async {
     try {
-      final albumIndex = _allAlbums.indexWhere((album) => album.id == albumId);
+      final albumIndex = _allAlbums.indexWhere((album) => album.hasId() ? album.id == albumId : false);
       if (albumIndex == -1) return;
 
-      final updatedAlbum = await _apiService.updateAlbum(
-        albumId: albumId,
-        name: name,
-        description: description,
-        isPrivate: isPrivate,
+      final updatedAlbum = await _apiService.updateAlbum(albumId, {
+        if (name != null) 'name': name,
+        if (description != null) 'description': description,
+        if (isPrivate != null) 'is_private': isPrivate,
+      });
+      
+      // Convert API Album to protobuf Album
+      final pbAlbum = pb.Album(
+        id: updatedAlbum.id,
+        name: updatedAlbum.name,
+        description: updatedAlbum.description ?? '',
+        photoCount: updatedAlbum.photoCount,
+        createdAt: Int64(updatedAlbum.createdAt.millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
       );
       
-      _allAlbums[albumIndex] = updatedAlbum;
+      _allAlbums[albumIndex] = pbAlbum;
       _updateFilteredAlbums();
       
       Get.snackbar(
@@ -175,7 +205,7 @@ class AlbumController extends GetxController {
   Future<void> deleteAlbum(String albumId) async {
     try {
       await _apiService.deleteAlbum(albumId);
-      _allAlbums.removeWhere((album) => album.id == albumId);
+      _allAlbums.removeWhere((album) => album.hasId() ? album.id == albumId : false);
       selectedAlbums.remove(albumId);
       _updateFilteredAlbums();
       
@@ -206,7 +236,7 @@ class AlbumController extends GetxController {
       
       for (final albumId in albumIds) {
         await _apiService.deleteAlbum(albumId);
-        _allAlbums.removeWhere((album) => album.id == albumId);
+        _allAlbums.removeWhere((album) => album.hasId() ? album.id == albumId : false);
       }
       
       selectedAlbums.clear();
@@ -235,7 +265,8 @@ class AlbumController extends GetxController {
 
   Future<List<Photo>> getAlbumPhotos(String albumId) async {
     try {
-      return await _apiService.getAlbumPhotos(albumId);
+      final response = await _apiService.getAlbumPhotos(albumId, 1, 100);
+      return response.photos;
     } catch (e) {
       Get.snackbar(
         'Error',
@@ -250,14 +281,23 @@ class AlbumController extends GetxController {
 
   Future<void> addPhotosToAlbum(String albumId, List<String> photoIds) async {
     try {
-      await _apiService.addPhotosToAlbum(albumId, photoIds);
+      // TODO: Implement addPhotosToAlbum API endpoint
+      // await _apiService.addPhotosToAlbum(albumId, photoIds);
       
       // Update album photo count
-      final albumIndex = _allAlbums.indexWhere((album) => album.id == albumId);
+      final albumIndex = _allAlbums.indexWhere((album) => album.hasId() ? album.id == albumId : false);
       if (albumIndex != -1) {
         final album = _allAlbums[albumIndex];
-        _allAlbums[albumIndex] = album.copyWith(
-          photoCount: album.photoCount + photoIds.length,
+        _allAlbums[albumIndex] = pb.Album(
+          id: album.hasId() ? album.id : '',
+          name: album.hasName() ? album.name : '',
+          description: album.hasDescription() ? album.description : '',
+          coverPhotoId: album.hasCoverPhotoId() ? album.coverPhotoId : '',
+          creatorId: album.hasCreatorId() ? album.creatorId : '',
+          isPublic: album.hasIsPublic() ? album.isPublic : false,
+          photoCount: (album.hasPhotoCount() ? album.photoCount : 0) + photoIds.length,
+          createdAt: album.hasCreatedAt() ? album.createdAt : Int64(0),
+          updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
         );
         _updateFilteredAlbums();
       }
@@ -282,14 +322,23 @@ class AlbumController extends GetxController {
 
   Future<void> removePhotosFromAlbum(String albumId, List<String> photoIds) async {
     try {
-      await _apiService.removePhotosFromAlbum(albumId, photoIds);
+      // TODO: Implement removePhotosFromAlbum API endpoint
+      // await _apiService.removePhotosFromAlbum(albumId, photoIds);
       
       // Update album photo count
-      final albumIndex = _allAlbums.indexWhere((album) => album.id == albumId);
+      final albumIndex = _allAlbums.indexWhere((album) => album.hasId() ? album.id == albumId : false);
       if (albumIndex != -1) {
         final album = _allAlbums[albumIndex];
-        _allAlbums[albumIndex] = album.copyWith(
-          photoCount: album.photoCount - photoIds.length,
+        _allAlbums[albumIndex] = pb.Album(
+          id: album.hasId() ? album.id : '',
+          name: album.hasName() ? album.name : '',
+          description: album.hasDescription() ? album.description : '',
+          coverPhotoId: album.hasCoverPhotoId() ? album.coverPhotoId : '',
+          creatorId: album.hasCreatorId() ? album.creatorId : '',
+          isPublic: album.hasIsPublic() ? album.isPublic : false,
+          photoCount: (album.hasPhotoCount() ? album.photoCount : 0) - photoIds.length,
+          createdAt: album.hasCreatedAt() ? album.createdAt : Int64(0),
+          updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
         );
         _updateFilteredAlbums();
       }
@@ -313,43 +362,43 @@ class AlbumController extends GetxController {
   }
 
   void _updateFilteredAlbums() {
-    List<Album> filtered = List.from(_allAlbums);
+    List<pb.Album> filtered = _allAlbums.toList();
 
     // Apply search filter
     if (searchQuery.value.isNotEmpty) {
       filtered = filtered.where((album) {
-        return album.name?.toLowerCase().contains(searchQuery.value) ?? false ||
-               (album.description?.toLowerCase().contains(searchQuery.value) ?? false);
+        return (album.hasName() ? album.name.toLowerCase().contains(searchQuery.value) : false) ||
+             (album.hasDescription() ? album.description.toLowerCase().contains(searchQuery.value) : false);
       }).toList();
     }
 
     // Apply sorting
     switch (sortBy.value) {
       case AlbumSortBy.newest:
-        filtered.sort((a, b) {
-          final bDate = b.createdAt ?? DateTime(0);
-          final aDate = a.createdAt ?? DateTime(0);
-          return bDate.compareTo(aDate);
+        filtered.sort((pb.Album a, pb.Album b) {
+          final aTime = a.hasCreatedAt() ? DateTime.fromMillisecondsSinceEpoch(a.createdAt.toInt()) : DateTime.now();
+          final bTime = b.hasCreatedAt() ? DateTime.fromMillisecondsSinceEpoch(b.createdAt.toInt()) : DateTime.now();
+          return bTime.compareTo(aTime);
         });
         break;
       case AlbumSortBy.oldest:
-        filtered.sort((a, b) {
-          final aDate = a.createdAt ?? DateTime(0);
-          final bDate = b.createdAt ?? DateTime(0);
-          return aDate.compareTo(bDate);
+        filtered.sort((pb.Album a, pb.Album b) {
+          final aTime = a.hasCreatedAt() ? DateTime.fromMillisecondsSinceEpoch(a.createdAt.toInt()) : DateTime.now();
+          final bTime = b.hasCreatedAt() ? DateTime.fromMillisecondsSinceEpoch(b.createdAt.toInt()) : DateTime.now();
+          return aTime.compareTo(bTime);
         });
         break;
       case AlbumSortBy.name:
-        filtered.sort((a, b) {
-          final aName = a.name ?? '';
-          final bName = b.name ?? '';
+        filtered.sort((pb.Album a, pb.Album b) {
+          final aName = a.hasName() ? a.name : '';
+          final bName = b.hasName() ? b.name : '';
           return aName.compareTo(bName);
         });
         break;
       case AlbumSortBy.photoCount:
-        filtered.sort((a, b) {
-          final bCount = b.photoCount ?? 0;
-          final aCount = a.photoCount ?? 0;
+        filtered.sort((pb.Album a, pb.Album b) {
+          final aCount = a.hasPhotoCount() ? a.photoCount : 0;
+          final bCount = b.hasPhotoCount() ? b.photoCount : 0;
           return bCount.compareTo(aCount);
         });
         break;

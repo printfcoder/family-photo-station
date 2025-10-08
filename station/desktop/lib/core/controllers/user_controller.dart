@@ -1,6 +1,7 @@
 import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
 import 'package:family_photo_desktop/core/models/user.dart';
+import 'package:fixnum/fixnum.dart';
 
 class UserController extends GetxController {
   final ApiClient _apiClient = ApiClient.instance;
@@ -138,12 +139,12 @@ class UserController extends GetxController {
 
   // 获取管理员用户数量
   int get adminUsersCount {
-    return _users.where((user) => user.role == UserRole.admin).length;
+    return _users.where((user) => user.role == UserRole.USER_ROLE_ADMIN).length;
   }
 
   // 获取普通用户数量
   int get regularUsersCount {
-    return _users.where((user) => user.role == UserRole.user).length;
+    return _users.where((user) => user.role == UserRole.USER_ROLE_USER).length;
   }
 
   // 按注册时间排序
@@ -167,8 +168,8 @@ class UserController extends GetxController {
   // 按存储使用量排序
   void sortByStorageUsage({bool ascending = false}) {
     _users.sort((a, b) {
-      final aUsage = a.stats?.storageUsed ?? 0;
-      final bUsage = b.stats?.storageUsed ?? 0;
+      final aUsage = a.stats?.totalStorageUsed ?? Int64.ZERO;
+        final bUsage = b.stats?.totalStorageUsed ?? Int64.ZERO;
       return ascending 
           ? aUsage.compareTo(bUsage)
           : bUsage.compareTo(aUsage);
@@ -182,7 +183,7 @@ class UserController extends GetxController {
     double minUsage = double.infinity;
     
     for (final user in _users) {
-      final usage = (user.stats?.storageUsed ?? 0).toDouble();
+      final usage = (user.stats?.totalStorageUsed ?? Int64.ZERO).toDouble();
       totalUsed += usage;
       if (usage > maxUsage) maxUsage = usage;
       if (usage < minUsage && usage > 0) minUsage = usage;
@@ -210,7 +211,7 @@ class UserController extends GetxController {
         inactiveUsers++;
       }
       
-      if (user.role == UserRole.admin) {
+      if (user.role == UserRole.USER_ROLE_ADMIN) {
         adminUsers++;
       } else {
         regularUsers++;

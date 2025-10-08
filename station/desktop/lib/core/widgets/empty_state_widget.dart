@@ -53,7 +53,7 @@ class EmptyStateWidget extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-            ]
+            ],
             if (actionText != null && onActionPressed != null) ...[
               const SizedBox(height: 32),
               ElevatedButton.icon(

@@ -4,7 +4,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:family_photo_mobile/core/controllers/album_controller.dart';
-import 'package:family_photo_mobile/core/models/photo.dart';
+import 'package:family_photo_mobile/core/models/album.dart' as pb;
 
 class UploadScreen extends StatefulWidget {
   const UploadScreen({super.key});
@@ -378,7 +378,7 @@ class _UploadScreenState extends State<UploadScreen> {
               value: null,
               child: Text('不添加到相册'),
             ),
-            ...albumController.albums.map((Album album) => DropdownMenuItem(
+            ...albumController.albums.map((pb.Album album) => DropdownMenuItem(
               value: album.id,
               child: Text(album.name),
             )),

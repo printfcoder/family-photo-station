@@ -1,9 +1,11 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 import 'package:family_photo_desktop/core/models/user.dart';
 import 'package:family_photo_desktop/core/models/photo.dart';
+import 'package:family_photo_desktop/core/models/api_models.dart';
 import 'package:family_photo_desktop/core/services/storage_service.dart';
 
 part 'api_service.g.dart';
@@ -109,7 +111,8 @@ abstract class ApiService {
 
   // 系统管理相关（桌面端特有）
   @GET('/admin/users')
-  Future<List<User>> getUsers(
+  @DioResponseType(ResponseType.bytes)
+  Future<HttpResponse<List<int>>> getUsersRaw(
     @Query('page') int page,
     @Query('page_size') int pageSize,
   );
@@ -123,23 +126,32 @@ abstract class ApiService {
     @Body() Map<String, dynamic> data,
   );
 
-  @DELETE('/admin/users/{id}')
-  Future<void> deleteUser(@Path('id') String id);
-
-  @DELETE('/admin/users')
-  Future<void> deleteUsers(@Body() Map<String, List<String>> userIds);
-
   @PUT('/admin/users/{id}/role')
   Future<User> updateUserRole(
     @Path('id') String id,
     @Body() Map<String, dynamic> data,
   );
 
+  @DELETE('/admin/users/{id}')
+  Future<void> deleteUser(@Path('id') String id);
+
+  @DELETE('/admin/users')
+  Future<void> deleteUsers(@Body() Map<String, dynamic> data);
+
   @GET('/admin/stats')
   Future<SystemStats> getSystemStats();
 
   @GET('/admin/storage')
   Future<StorageInfo> getStorageInfo();
+}
+
+// Extension to add concrete methods
+extension ApiServiceExtension on ApiService {
+  Future<List<User>> getUsers(int page, int pageSize) async {
+    final response = await getUsersRaw(page, pageSize);
+    final userList = UserList.fromBuffer(response.data);
+    return userList.users;
+  }
 }
 
 class ApiClient {
@@ -447,7 +459,7 @@ class PhotosResponse {
   factory PhotosResponse.fromJson(Map<String, dynamic> json) {
     return PhotosResponse(
       photos: (json['photos'] as List<dynamic>?)
-          ?.map((item) => Photo.fromJson(item as Map<String, dynamic>))
+          ?.map((item) => Photo.fromBuffer((item as Map<String, dynamic>).toString().codeUnits))
           .toList() ?? [],
       total: json['total'] ?? 0,
       page: json['page'] ?? 1,

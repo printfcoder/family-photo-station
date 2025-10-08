@@ -3,6 +3,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 import 'package:family_photo_desktop/core/models/user.dart';
+import 'package:fixnum/fixnum.dart';
 
 class StorageService {
   static StorageService? _instance;
@@ -24,24 +25,16 @@ class StorageService {
     _prefs = await SharedPreferences.getInstance();
     await Hive.initFlutter();
     
-    // 注册Hive适配器
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(UserAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(UserRoleAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(UserStatsAdapter());
-    }
-    if (!Hive.isAdapterRegistered(3)) {
-      Hive.registerAdapter(DeviceAdapter());
-    }
-
+    // 简化Hive初始化，不再使用适配器
     // 打开Hive boxes
-    _userBox = await Hive.openBox(HiveBoxes.userBox);
-    _settingsBox = await Hive.openBox(HiveBoxes.settingsBox);
-    _cacheBox = await Hive.openBox(HiveBoxes.cacheBox);
+    _userBox = await Hive.openBox('userBox');
+    _settingsBox = await Hive.openBox('settingsBox');
+    _cacheBox = await Hive.openBox('cacheBox');
+  }
+
+  Future<void> _initHive() async {
+    // Remove Hive initialization since we're using pure protobuf models
+    // No longer need to register adapters
   }
 
   // Token管理
@@ -63,23 +56,42 @@ class StorageService {
     await _prefs?.remove(AppConstants.refreshTokenKey);
   }
 
-  // 用户信息管理
+  // 用户信息管理 - Simplified without Hive and JSON serialization
   Future<void> saveUser(User user) async {
-    await _userBox?.put('current_user', user);
-    await _prefs?.setString(AppConstants.userInfoKey, jsonEncode(user.toJson()));
+    // Store user data as JSON string in SharedPreferences
+    final userJson = jsonEncode({
+      'id': user.id,
+      'username': user.username,
+      'email': user.email,
+      'displayName': user.displayName,
+      'avatar': user.avatar,
+      'bio': user.bio,
+      'role': user.role.value,
+      'isActive': user.isActive,
+      'createdAt': user.createdAt.toString(),
+      'updatedAt': user.updatedAt.toString(),
+    });
+    await _prefs?.setString(AppConstants.userInfoKey, userJson);
   }
 
   Future<User?> getUser() async {
-    // 优先从Hive获取
-    final user = _userBox?.get('current_user') as User?;
-    if (user != null) return user;
-
-    // 从SharedPreferences获取
+    // Get from SharedPreferences
     final userJson = _prefs?.getString(AppConstants.userInfoKey);
     if (userJson != null) {
       try {
         final userData = jsonDecode(userJson) as Map<String, dynamic>;
-        return User.fromJson(userData);
+        return User(
+          id: userData['id'] as String? ?? '',
+          username: userData['username'] as String? ?? '',
+          email: userData['email'] as String? ?? '',
+          displayName: userData['displayName'] as String?,
+          avatar: userData['avatar'] as String?,
+          bio: userData['bio'] as String?,
+          role: UserRole.valueOf(userData['role'] as int? ?? 0) ?? UserRole.USER_ROLE_UNSPECIFIED,
+          isActive: userData['isActive'] as bool? ?? false,
+          createdAt: Int64.parseInt(userData['createdAt'] as String? ?? '0'),
+          updatedAt: Int64.parseInt(userData['updatedAt'] as String? ?? '0'),
+        );
       } catch (e) {
         return null;
       }
@@ -216,7 +228,18 @@ class StorageService {
     final cache = _cacheBox?.toMap() ?? {};
 
     return {
-      'user': userData?.toJson(),
+      'user': userData != null ? {
+        'id': userData.id,
+        'username': userData.username,
+        'email': userData.email,
+        'displayName': userData.displayName,
+        'avatar': userData.avatar,
+        'bio': userData.bio,
+        'role': userData.role.value,
+        'isActive': userData.isActive,
+        'createdAt': userData.createdAt.toString(),
+        'updatedAt': userData.updatedAt.toString(),
+      } : null,
       'settings': settings,
       'cache': cache,
       'timestamp': DateTime.now().toIso8601String(),
@@ -228,7 +251,19 @@ class StorageService {
     try {
       // 导入用户数据
       if (data['user'] != null) {
-        final user = User.fromJson(data['user'] as Map<String, dynamic>);
+        final userData = data['user'] as Map<String, dynamic>;
+        final user = User(
+          id: userData['id'] as String? ?? '',
+          username: userData['username'] as String? ?? '',
+          email: userData['email'] as String? ?? '',
+          displayName: userData['displayName'] as String?,
+          avatar: userData['avatar'] as String?,
+          bio: userData['bio'] as String?,
+          role: UserRole.valueOf(userData['role'] as int? ?? 0) ?? UserRole.USER_ROLE_UNSPECIFIED,
+          isActive: userData['isActive'] as bool? ?? false,
+          createdAt: Int64.parseInt(userData['createdAt'] as String? ?? '0'),
+          updatedAt: Int64.parseInt(userData['updatedAt'] as String? ?? '0'),
+        );
         await saveUser(user);
       }
 

@@ -154,7 +154,11 @@ class _ApiService implements ApiService {
   Future<User> getUserProfile() async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${User.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${User.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<User>(Options(
       method: 'GET',
@@ -172,14 +176,8 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late User _value;
-    try {
-      _value = User.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(User.fromBuffer, _result.data!);
     return _value;
   }
 
@@ -187,7 +185,11 @@ class _ApiService implements ApiService {
   Future<User> updateProfile(UpdateProfileRequest request) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${User.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${User.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(request.toJson());
     final _options = _setStreamType<User>(Options(
@@ -206,14 +208,8 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late User _value;
-    try {
-      _value = User.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(User.fromBuffer, _result.data!);
     return _value;
   }
 
@@ -330,7 +326,11 @@ class _ApiService implements ApiService {
   Future<Photo> getPhotoDetail(String id) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${Photo.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${Photo.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<Photo>(Options(
       method: 'GET',
@@ -348,14 +348,8 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Photo _value;
-    try {
-      _value = Photo.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(Photo.fromBuffer, _result.data!);
     return _value;
   }
 
@@ -372,7 +366,11 @@ class _ApiService implements ApiService {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     queryParameters.removeWhere((k, v) => v == null);
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${Photo.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${Photo.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
     final _data = FormData();
     _data.files.add(MapEntry(
       'file',
@@ -425,14 +423,8 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Photo _value;
-    try {
-      _value = Photo.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(Photo.fromBuffer, _result.data!);
     return _value;
   }
 
@@ -468,7 +460,11 @@ class _ApiService implements ApiService {
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${Photo.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${Photo.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(data);
     final _options = _setStreamType<Photo>(Options(
@@ -487,14 +483,8 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late Photo _value;
-    try {
-      _value = Photo.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(Photo.fromBuffer, _result.data!);
     return _value;
   }
 
@@ -813,7 +803,7 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<List<User>> getUsers(
+  Future<HttpResponse<List<int>>> getUsersRaw(
     int page,
     int pageSize,
   ) async {
@@ -824,10 +814,11 @@ class _ApiService implements ApiService {
     };
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
-    final _options = _setStreamType<List<User>>(Options(
+    final _options = _setStreamType<HttpResponse<List<int>>>(Options(
       method: 'GET',
       headers: _headers,
       extra: _extra,
+      responseType: ResponseType.bytes,
     )
         .compose(
           _dio.options,
@@ -841,23 +832,26 @@ class _ApiService implements ApiService {
           baseUrl,
         )));
     final _result = await _dio.fetch<List<dynamic>>(_options);
-    late List<User> _value;
+    late List<int> _value;
     try {
-      _value = _result.data!
-          .map((dynamic i) => User.fromJson(i as Map<String, dynamic>))
-          .toList();
+      _value = _result.data!.cast<int>();
     } on Object catch (e, s) {
       errorLogger?.logError(e, s, _options);
       rethrow;
     }
-    return _value;
+    final httpResponse = HttpResponse(_value, _result);
+    return httpResponse;
   }
 
   @override
   Future<User> inviteUser(Map<String, dynamic> data) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${User.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${User.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(data);
     final _options = _setStreamType<User>(Options(
@@ -876,14 +870,8 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late User _value;
-    try {
-      _value = User.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(User.fromBuffer, _result.data!);
     return _value;
   }
 
@@ -894,7 +882,11 @@ class _ApiService implements ApiService {
   ) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${User.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${User.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
     final _data = <String, dynamic>{};
     _data.addAll(data);
     final _options = _setStreamType<User>(Options(
@@ -913,14 +905,43 @@ class _ApiService implements ApiService {
           _dio.options.baseUrl,
           baseUrl,
         )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late User _value;
-    try {
-      _value = User.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(User.fromBuffer, _result.data!);
+    return _value;
+  }
+
+  @override
+  Future<User> updateUserRole(
+    String id,
+    Map<String, dynamic> data,
+  ) async {
+    final _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _headers = <String, dynamic>{
+      r'accept':
+          'application/x-protobuf; ${User.getDefault().info_.qualifiedMessageName == "" ? "" : "messageType=${User.getDefault().info_.qualifiedMessageName}"}'
+    };
+    _headers.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    _data.addAll(data);
+    final _options = _setStreamType<User>(Options(
+      method: 'PUT',
+      headers: _headers,
+      extra: _extra,
+    )
+        .compose(
+          _dio.options,
+          '/admin/users/${id}/role',
+          queryParameters: queryParameters,
+          data: _data,
+        )
+        .copyWith(
+            baseUrl: _combineBaseUrls(
+          _dio.options.baseUrl,
+          baseUrl,
+        )));
+    final _result = await _dio.fetch<List<int>>(_options);
+    final _value = await compute(User.fromBuffer, _result.data!);
     return _value;
   }
 
@@ -950,12 +971,12 @@ class _ApiService implements ApiService {
   }
 
   @override
-  Future<void> deleteUsers(Map<String, List<String>> userIds) async {
+  Future<void> deleteUsers(Map<String, dynamic> data) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _headers = <String, dynamic>{};
     final _data = <String, dynamic>{};
-    _data.addAll(userIds);
+    _data.addAll(data);
     final _options = _setStreamType<void>(Options(
       method: 'DELETE',
       headers: _headers,
@@ -973,43 +994,6 @@ class _ApiService implements ApiService {
           baseUrl,
         )));
     await _dio.fetch<void>(_options);
-  }
-
-  @override
-  Future<User> updateUserRole(
-    String id,
-    Map<String, dynamic> data,
-  ) async {
-    final _extra = <String, dynamic>{};
-    final queryParameters = <String, dynamic>{};
-    final _headers = <String, dynamic>{};
-    final _data = <String, dynamic>{};
-    _data.addAll(data);
-    final _options = _setStreamType<User>(Options(
-      method: 'PUT',
-      headers: _headers,
-      extra: _extra,
-    )
-        .compose(
-          _dio.options,
-          '/admin/users/${id}/role',
-          queryParameters: queryParameters,
-          data: _data,
-        )
-        .copyWith(
-            baseUrl: _combineBaseUrls(
-          _dio.options.baseUrl,
-          baseUrl,
-        )));
-    final _result = await _dio.fetch<Map<String, dynamic>>(_options);
-    late User _value;
-    try {
-      _value = User.fromJson(_result.data!);
-    } on Object catch (e, s) {
-      errorLogger?.logError(e, s, _options);
-      rethrow;
-    }
-    return _value;
   }
 
   @override

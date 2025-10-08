@@ -253,7 +253,8 @@ class PhotoController extends GetxController {
     // 这里可以实现本地过滤或者调用API过滤
     // 暂时使用本地过滤
     final filteredPhotos = _photos.where((photo) {
-      return photo.createdAt.isAfter(startDate) && photo.createdAt.isBefore(endDate);
+      final photoDate = DateTime.fromMillisecondsSinceEpoch(photo.createdAt.toInt());
+      return photoDate.isAfter(startDate) && photoDate.isBefore(endDate);
     }).toList();
     _photos.assignAll(filteredPhotos);
   }

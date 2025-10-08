@@ -24,19 +24,19 @@ class StorageService {
     _prefs = await SharedPreferences.getInstance();
     await Hive.initFlutter();
     
-    // 注册Hive适配器
-    if (!Hive.isAdapterRegistered(0)) {
-      Hive.registerAdapter(UserAdapter());
-    }
-    if (!Hive.isAdapterRegistered(1)) {
-      Hive.registerAdapter(UserRoleAdapter());
-    }
-    if (!Hive.isAdapterRegistered(2)) {
-      Hive.registerAdapter(UserStatsAdapter());
-    }
-    if (!Hive.isAdapterRegistered(3)) {
-      Hive.registerAdapter(DeviceAdapter());
-    }
+    // 注册Hive适配器 - 使用protobuf模型，不需要Hive适配器
+    // if (!Hive.isAdapterRegistered(0)) {
+    //   Hive.registerAdapter(UserAdapter());
+    // }
+    // if (!Hive.isAdapterRegistered(1)) {
+    //   Hive.registerAdapter(UserRoleAdapter());
+    // }
+    // if (!Hive.isAdapterRegistered(2)) {
+    //   Hive.registerAdapter(UserStatsAdapter());
+    // }
+    // if (!Hive.isAdapterRegistered(3)) {
+    //   Hive.registerAdapter(DeviceAdapter());
+    // }
 
     // 打开Hive boxes
     _userBox = await Hive.openBox(HiveBoxes.userBox);
@@ -66,7 +66,7 @@ class StorageService {
   // 用户信息管理
   Future<void> saveUser(User user) async {
     await _userBox?.put('current_user', user);
-    await _prefs?.setString(AppConstants.userInfoKey, jsonEncode(user.toJson()));
+    await _prefs?.setString(AppConstants.userInfoKey, user.writeToJson());
   }
 
   Future<User?> getUser() async {
@@ -78,8 +78,7 @@ class StorageService {
     final userJson = _prefs?.getString(AppConstants.userInfoKey);
     if (userJson != null) {
       try {
-        final userData = jsonDecode(userJson) as Map<String, dynamic>;
-        return User.fromJson(userData);
+        return User.fromBuffer(userJson.codeUnits);
       } catch (e) {
         return null;
       }
@@ -245,7 +244,7 @@ class StorageService {
     final settings = _settingsBox?.toMap() ?? {};
     
     return {
-      'user': user?.toJson(),
+      'user': user?.writeToJson(),
       'settings': settings,
       'timestamp': DateTime.now().toIso8601String(),
     };
@@ -256,7 +255,7 @@ class StorageService {
     try {
       // 导入用户数据
       if (data['user'] != null) {
-        final user = User.fromJson(data['user'] as Map<String, dynamic>);
+        final user = User.fromBuffer((data['user'] as String).codeUnits);
         await saveUser(user);
       }
 

@@ -39,7 +39,7 @@ jwt:
 # 文件上传配置
 upload:
   max_file_size: 52428800 # 50MB in bytes
-  allowed_types: ["jpg", "jpeg", "png", "gif", "bmp", "webp", "tiff", "raw", "heic"]
+  allowed_types: [ "jpg", "jpeg", "png", "gif", "bmp", "webp", "tiff", "raw", "heic" ]
   storage_path: "./data/photos"
   thumbnail_path: "./data/thumbnails"
   temp_path: "./data/temp"

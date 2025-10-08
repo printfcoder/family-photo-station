@@ -29,8 +29,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   
-  # Protobuf支持
-  protobuf: ^2.1.0
+  # Protobuf support
+  protobuf: ^3.1.0
+  fixnum: ^1.1.0
   
   # 图片处理
   image_picker: ^1.1.2
@@ -87,9 +88,9 @@ flutter:
     - assets/fonts/
   
   # 字体配置
-  fonts:
-    - family: Roboto
-      fonts:
-        - asset: assets/fonts/Roboto-Regular.ttf
-        - asset: assets/fonts/Roboto-Bold.ttf
-          weight: 700
+  # fonts:
+  #   - family: Roboto
+  #     fonts:
+  #       - asset: assets/fonts/Roboto-Regular.ttf
+  #       - asset: assets/fonts/Roboto-Bold.ttf
+  #         weight: 700

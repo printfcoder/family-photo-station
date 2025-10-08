@@ -5,7 +5,7 @@ package family_photo;
 option java_package = "com.familyphoto.models";
 option go_package = "github.com/family-photo-station/models";
 
-// 照片模型
+// Photo model
 message Photo {
   string id = 1;
   string filename = 2;
@@ -21,16 +21,17 @@ message Photo {
   string uploader_id = 12;
   optional string device_id = 13;
   optional string album_id = 14;
-  int64 created_at = 15; // Unix时间戳（毫秒）
-  int64 updated_at = 16; // Unix时间戳（毫秒）
-  optional int64 deleted_at = 17; // Unix时间戳（毫秒）
+  int64 created_at = 15; // Unix timestamp (milliseconds)
+  int64 updated_at = 16; // Unix timestamp (milliseconds)
+  optional int64 deleted_at = 17; // Unix timestamp (milliseconds)
   optional string thumbnail_url = 18;
   optional string url = 19;
   optional string original_url = 20;
   optional string medium_url = 21;
+  repeated string tags = 22; // Photo tags
 }
 
-// EXIF数据
+// EXIF data
 message ExifData {
   optional string camera_make = 1;
   optional string camera_model = 2;
@@ -39,10 +40,10 @@ message ExifData {
   optional double aperture = 5;
   optional double shutter_speed = 6;
   optional int32 iso = 7;
-  optional int64 taken_at = 8; // Unix时间戳（毫秒）
+  optional int64 taken_at = 8; // Unix timestamp (milliseconds)
 }
 
-// 位置数据
+// Location data
 message LocationData {
   double latitude = 1;
   double longitude = 2;
@@ -54,7 +55,7 @@ message LocationData {
   optional string district = 8;
 }
 
-// 照片列表
+// Photo list response
 message PhotoList {
   repeated Photo photos = 1;
   int32 total_count = 2;

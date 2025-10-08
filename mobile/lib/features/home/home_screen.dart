@@ -5,8 +5,8 @@ import 'package:family_photo_mobile/core/constants/app_constants.dart';
 import 'package:family_photo_mobile/core/controllers/auth_controller.dart';
 import 'package:family_photo_mobile/core/controllers/photo_controller.dart';
 import 'package:family_photo_mobile/core/controllers/album_controller.dart';
-import 'package:family_photo_mobile/core/models/photo.dart';
 import 'package:family_photo_mobile/core/models/user.dart';
+import 'package:family_photo_mobile/core/models/album.dart' as pb;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -472,7 +472,7 @@ class _HomeTab extends StatelessWidget {
             ),
           )
         else
-          ...albums.map((Album album) => Container(
+          ...albums.map((pb.Album album) => Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                 child: ListTile(
                   leading: Container(

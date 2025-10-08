@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
+import 'package:family_photo_desktop/core/widgets/network_status_banner.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -61,90 +62,99 @@ class _DashboardScreenState extends State<DashboardScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Row(
+      body: Column(
         children: [
-          // 侧边导航栏
-          NavigationRail(
-            selectedIndex: _selectedIndex,
-            onDestinationSelected: _onDestinationSelected,
-            labelType: NavigationRailLabelType.all,
-            destinations: _destinations,
-            leading: Column(
+          // 网络状态横幅
+          const NetworkStatusBanner(),
+          // 主要内容
+          Expanded(
+            child: Row(
               children: [
-                const SizedBox(height: 16),
-                // 应用图标
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.primary,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Icon(
-                    Icons.photo_library,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                ),
-                const SizedBox(height: 32),
-              ],
-            ),
-            trailing: Expanded(
-              child: Align(
-                alignment: Alignment.bottomCenter,
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
+                // 侧边导航栏
+                NavigationRail(
+                  selectedIndex: _selectedIndex,
+                  onDestinationSelected: _onDestinationSelected,
+                  labelType: NavigationRailLabelType.all,
+                  destinations: _destinations,
+                  leading: Column(
                     children: [
-                      // 用户头像
-                      Obx(() => CircleAvatar(
-                        radius: 20,
-                        backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                        child: _authController.user?.avatar != null
-                            ? ClipOval(
-                                child: Image.network(
-                                  _authController.user!.avatar!,
-                                  width: 40,
-                                  height: 40,
-                                  fit: BoxFit.cover,
-                                  errorBuilder: (context, error, stackTrace) {
-                                    return Icon(
-                                      Icons.person,
-                                      color: Theme.of(context).colorScheme.primary,
-                                    );
-                                  },
-                                ),
-                              )
-                            : Icon(
-                                Icons.person,
-                                color: Theme.of(context).colorScheme.primary,
-                              ),
-                      )),
-                      const SizedBox(height: 8),
-                      // 登出按钮
-                      IconButton(
-                        icon: const Icon(Icons.logout),
-                        onPressed: () async {
-                          await _authController.logout();
-                          if (mounted) {
-                            context.go(AppRoutes.login);
-                          }
-                        },
-                        tooltip: '登出',
+                      const SizedBox(height: 16),
+                      // 应用图标
+                      Container(
+                        width: 48,
+                        height: 48,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).colorScheme.primary,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.photo_library,
+                          color: Colors.white,
+                          size: 24,
+                        ),
                       ),
+                      const SizedBox(height: 32),
                     ],
                   ),
+                  trailing: Expanded(
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // 用户头像
+                            Obx(() => CircleAvatar(
+                              radius: 20,
+                              backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
+                              child: _authController.user?.avatar != null
+                                  ? ClipOval(
+                                      child: Image.network(
+                                        _authController.user!.avatar!,
+                                        width: 40,
+                                        height: 40,
+                                        fit: BoxFit.cover,
+                                        errorBuilder: (context, error, stackTrace) {
+                                          return Icon(
+                                            Icons.person,
+                                            color: Theme.of(context).colorScheme.primary,
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : Icon(
+                                      Icons.person,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                            )),
+                            const SizedBox(height: 8),
+                            // 登出按钮
+                            IconButton(
+                              icon: const Icon(Icons.logout),
+                              onPressed: () async {
+                                await _authController.logout();
+                                if (mounted) {
+                                  context.go(AppRoutes.login);
+                                }
+                              },
+                              tooltip: '登出',
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
+                
+                const VerticalDivider(thickness: 1, width: 1),
+                
+                // 主内容区域
+                Expanded(
+                  child: _buildMainContent(),
+                ),
+              ],
             ),
-          ),
-          
-          const VerticalDivider(thickness: 1, width: 1),
-          
-          // 主内容区域
-          Expanded(
-            child: _buildMainContent(),
           ),
         ],
       ),
@@ -215,13 +225,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 ),
                 _buildStatCard(
                   title: '标签数量',
-                  value: '${_authController.userStats?.tagCount ?? 0}',
+                  value: '0', // tagCount not available in UserStats
                   icon: Icons.label,
                   color: Colors.orange,
                 ),
                 _buildStatCard(
                   title: '分享数量',
-                  value: '${_authController.userStats?.shareCount ?? 0}',
+                  value: _authController.userStats?.totalStorageUsed != null 
+                    ? '${(_authController.userStats!.totalStorageUsed.toDouble() / (1024 * 1024 * 1024)).toStringAsFixed(1)}%'
+                    : '0%',
                   icon: Icons.share,
                   color: Colors.purple,
                 ),
@@ -245,7 +257,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   const SizedBox(height: 16),
                   Obx(() {
                     final stats = _authController.userStats;
-                    final usage = stats?.storageUsagePercentage ?? 0.0;
+                    final usage = stats?.totalStorageUsed != null 
+                      ? (stats!.totalStorageUsed.toDouble() / (10 * 1024 * 1024 * 1024)) // Assume 10GB limit
+                      : 0.0;
                     return Column(
                       children: [
                         LinearProgressIndicator(
@@ -260,11 +274,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '已使用: ${stats?.formattedStorageUsed ?? '0 B'}',
+                              '已使用: ${stats?.totalStorageUsed != null ? _formatBytes(stats!.totalStorageUsed.toInt()) : '0 B'}',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                             Text(
-                              '总容量: ${stats?.formattedStorageLimit ?? '0 B'}',
+                              '总容量: 无限制',
                               style: Theme.of(context).textTheme.bodyMedium,
                             ),
                           ],
@@ -318,5 +332,17 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
+  }
+
+  String _formatBytes(int bytes) {
+    if (bytes <= 0) return '0 B';
+    const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
+    int i = 0;
+    double size = bytes.toDouble();
+    while (size >= 1024 && i < suffixes.length - 1) {
+      size /= 1024;
+      i++;
+    }
+    return '${size.toStringAsFixed(1)} ${suffixes[i]}';
   }
 }

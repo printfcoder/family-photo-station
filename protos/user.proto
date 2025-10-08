@@ -1,0 +1,45 @@
+syntax = "proto3";
+
+package family_photo;
+
+option java_package = "com.familyphoto.models";
+option go_package = "github.com/family-photo-station/models";
+
+// User role enum
+enum UserRole {
+  USER_ROLE_UNSPECIFIED = 0;
+  USER_ROLE_USER = 1;
+  USER_ROLE_ADMIN = 2;
+  USER_ROLE_MODERATOR = 3;
+}
+
+// User model
+message User {
+  string id = 1;
+  string username = 2;
+  string email = 3;
+  optional string display_name = 4;
+  optional string avatar = 5;
+  optional string bio = 6;
+  UserRole role = 7;
+  bool is_active = 8;
+  int64 created_at = 9; // Unix timestamp (milliseconds)
+  int64 updated_at = 10; // Unix timestamp (milliseconds)
+  optional UserStats stats = 11;
+}
+
+// User statistics
+message UserStats {
+  int32 photo_count = 1;
+  int32 album_count = 2;
+  int64 total_storage_used = 3; // bytes
+}
+
+// User list response
+message UserList {
+  repeated User users = 1;
+  int32 total_count = 2;
+  int32 page = 3;
+  int32 page_size = 4;
+  bool has_more = 5;
+}

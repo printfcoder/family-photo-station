@@ -1,14 +1,16 @@
 import 'package:get/get.dart';
 import 'package:family_photo_mobile/core/models/photo.dart';
+import 'package:family_photo_mobile/core/models/album.dart' as pb;
+import 'package:fixnum/fixnum.dart';
 
 class AlbumController extends GetxController {
   // 相册列表状态
-  final RxList<Album> _albums = <Album>[].obs;
+  final RxList<pb.Album> _albums = <pb.Album>[].obs;
   final RxBool _isLoading = false.obs;
   final RxnString _error = RxnString();
 
   // Getters
-  List<Album> get albums => _albums;
+  List<pb.Album> get albums => _albums;
   bool get isLoading => _isLoading.value;
   String? get error => _error.value;
 
@@ -30,7 +32,7 @@ class AlbumController extends GetxController {
       // 模拟数据
       await Future.delayed(const Duration(seconds: 1));
       final mockAlbums = List.generate(10, (index) {
-        return Album(
+        return pb.Album(
           id: 'album_${index + 1}',
           name: '相册 ${index + 1}',
           description: '这是第 ${index + 1} 个相册的描述',
@@ -38,8 +40,8 @@ class AlbumController extends GetxController {
           creatorId: 'user_1',
           isPublic: index % 2 == 0,
           photoCount: (index + 1) * 10,
-          createdAt: DateTime.now().subtract(Duration(days: index)),
-          updatedAt: DateTime.now().subtract(Duration(days: index)),
+          createdAt: Int64(DateTime.now().subtract(Duration(days: index)).millisecondsSinceEpoch),
+          updatedAt: Int64(DateTime.now().subtract(Duration(days: index)).millisecondsSinceEpoch),
         );
       });
       
@@ -72,7 +74,7 @@ class AlbumController extends GetxController {
       
       // 模拟创建
       await Future.delayed(const Duration(seconds: 1));
-      final newAlbum = Album(
+      final newAlbum = pb.Album(
         id: 'album_${DateTime.now().millisecondsSinceEpoch}',
         name: name,
         description: description ?? '',
@@ -80,8 +82,8 @@ class AlbumController extends GetxController {
         creatorId: 'user_1',
         isPublic: true,
         photoCount: 0,
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
+        createdAt: Int64(DateTime.now().millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
       );
       
       _albums.insert(0, newAlbum);
@@ -108,10 +110,16 @@ class AlbumController extends GetxController {
       final index = _albums.indexWhere((album) => album.id == albumId);
       if (index != -1) {
         final album = _albums[index];
-        _albums[index] = album.copyWith(
-          name: name,
-          description: description,
-          updatedAt: DateTime.now(),
+        _albums[index] = pb.Album(
+          id: album.id,
+          name: name ?? album.name,
+          description: description ?? album.description,
+          coverPhotoId: album.coverPhotoId,
+          creatorId: album.creatorId,
+          isPublic: album.isPublic,
+          photoCount: album.photoCount,
+          createdAt: album.createdAt,
+          updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
         );
       }
       
@@ -150,9 +158,16 @@ class AlbumController extends GetxController {
       final index = _albums.indexWhere((album) => album.id == albumId);
       if (index != -1) {
         final album = _albums[index];
-        _albums[index] = album.copyWith(
+        _albums[index] = pb.Album(
+          id: album.id,
+          name: album.name,
+          description: album.description,
+          coverPhotoId: album.coverPhotoId,
+          creatorId: album.creatorId,
+          isPublic: album.isPublic,
           photoCount: album.photoCount + 1,
-          updatedAt: DateTime.now(),
+          createdAt: album.createdAt,
+          updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
         );
       }
       
@@ -174,9 +189,16 @@ class AlbumController extends GetxController {
       final index = _albums.indexWhere((album) => album.id == albumId);
       if (index != -1) {
         final album = _albums[index];
-        _albums[index] = album.copyWith(
+        _albums[index] = pb.Album(
+          id: album.id,
+          name: album.name,
+          description: album.description,
+          coverPhotoId: album.coverPhotoId,
+          creatorId: album.creatorId,
+          isPublic: album.isPublic,
           photoCount: album.photoCount > 0 ? album.photoCount - 1 : 0,
-          updatedAt: DateTime.now(),
+          createdAt: album.createdAt,
+          updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
         );
       }
       
@@ -188,7 +210,7 @@ class AlbumController extends GetxController {
   }
 
   // 根据ID获取相册
-  Album? getAlbumById(String albumId) {
+  pb.Album? getAlbumById(String albumId) {
     try {
       return _albums.firstWhere((album) => album.id == albumId);
     } catch (e) {

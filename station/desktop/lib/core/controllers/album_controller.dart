@@ -1,19 +1,20 @@
 import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
-import 'package:family_photo_desktop/core/models/photo.dart';
+import 'package:family_photo_desktop/core/models/album.pb.dart' as pb;
+import 'package:fixnum/fixnum.dart';
 
 class AlbumController extends GetxController {
   final ApiClient _apiClient = ApiClient.instance;
   
   // 相册列表状态
-  final RxList<Album> _albums = <Album>[].obs;
+  final RxList<pb.Album> _albums = <pb.Album>[].obs;
   final RxBool _isLoading = false.obs;
   final RxnString _error = RxnString();
   final RxInt _currentPage = 1.obs;
   final RxBool _hasMore = true.obs;
 
   // Getters
-  List<Album> get albums => _albums;
+  List<pb.Album> get albums => _albums.toList();
   bool get isLoading => _isLoading.value;
   String? get error => _error.value;
   int get currentPage => _currentPage.value;
@@ -43,10 +44,20 @@ class AlbumController extends GetxController {
         page: _currentPage.value,
       );
 
+      // Convert API Album objects to protobuf Album objects
+      final pbAlbums = albums.map((album) => pb.Album(
+        id: album.id,
+        name: album.name,
+        description: album.description ?? '',
+        photoCount: album.photoCount,
+        createdAt: Int64(album.createdAt.millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
+      )).toList();
+
       if (refresh) {
-        _albums.assignAll(albums);
+        _albums.assignAll(pbAlbums);
       } else {
-        _albums.addAll(albums);
+        _albums.addAll(pbAlbums);
       }
 
       _currentPage.value++;
@@ -84,7 +95,17 @@ class AlbumController extends GetxController {
         'description': description ?? '',
       });
       
-      _albums.insert(0, album);
+      // Convert API Album to protobuf Album
+      final pbAlbum = pb.Album(
+        id: album.id,
+        name: album.name,
+        description: album.description ?? '',
+        photoCount: album.photoCount,
+        createdAt: Int64(album.createdAt.millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
+      );
+      
+      _albums.insert(0, pbAlbum);
       return true;
     } catch (e) {
       _error.value = _getErrorMessage(e);
@@ -109,10 +130,20 @@ class AlbumController extends GetxController {
 
       final updatedAlbum = await _apiClient.api.updateAlbum(albumId, data);
       
+      // Convert API Album to protobuf Album
+      final pbAlbum = pb.Album(
+        id: updatedAlbum.id,
+        name: updatedAlbum.name,
+        description: updatedAlbum.description ?? '',
+        photoCount: updatedAlbum.photoCount,
+        createdAt: Int64(updatedAlbum.createdAt.millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
+      );
+      
       // 更新本地列表中的相册信息
-      final index = _albums.indexWhere((album) => album.id == albumId);
+       final index = _albums.indexWhere((pb.Album album) => album.id == albumId);
       if (index != -1) {
-        _albums[index] = updatedAlbum;
+        _albums[index] = pbAlbum;
       }
       
       return true;
@@ -133,7 +164,7 @@ class AlbumController extends GetxController {
       await _apiClient.api.deleteAlbum(albumId);
       
       // 从本地列表中移除
-      _albums.removeWhere((album) => album.id == albumId);
+      _albums.removeWhere((pb.Album album) => album.id == albumId);
       
       return true;
     } catch (e) {
@@ -145,18 +176,28 @@ class AlbumController extends GetxController {
   }
 
   // 获取相册详情
-  Future<Album?> getAlbumDetail(String albumId) async {
+  Future<pb.Album?> getAlbumDetail(String albumId) async {
     try {
       _isLoading.value = true;
       final album = await _apiClient.api.getAlbumDetail(albumId);
       
+      // Convert API Album to protobuf Album
+      final pbAlbum = pb.Album(
+        id: album.id,
+        name: album.name,
+        description: album.description ?? '',
+        photoCount: album.photoCount,
+        createdAt: Int64(album.createdAt.millisecondsSinceEpoch),
+        updatedAt: Int64(DateTime.now().millisecondsSinceEpoch),
+      );
+      
       // 更新本地列表中的相册信息
-      final index = _albums.indexWhere((a) => a.id == albumId);
+      final index = _albums.indexWhere((pb.Album a) => a.id == albumId);
       if (index != -1) {
-        _albums[index] = album;
+        _albums[index] = pbAlbum;
       }
       
-      return album;
+      return pbAlbum;
     } catch (e) {
       _error.value = _getErrorMessage(e);
       return null;
@@ -180,48 +221,48 @@ class AlbumController extends GetxController {
   }
 
   // 根据ID获取相册
-  Album? getAlbumById(String albumId) {
+  pb.Album? getAlbumById(String albumId) {
     try {
-      return _albums.firstWhere((album) => album.id == albumId);
+      return _albums.firstWhere((pb.Album album) => album.id == albumId);
     } catch (e) {
       return null;
     }
   }
 
   // 搜索相册
-  List<Album> searchAlbums(String query) {
-    if (query.isEmpty) return _albums;
+  List<pb.Album> searchAlbums(String query) {
+    if (query.isEmpty) return _albums.toList();
     
-    return _albums.where((album) {
-      return album.name.toLowerCase().contains(query.toLowerCase()) ||
-             (album.description?.toLowerCase().contains(query.toLowerCase()) ?? false);
+    return _albums.where((pb.Album album) {
+      return (album.hasName() ? album.name.toLowerCase().contains(query.toLowerCase()) : false) ||
+             (album.hasDescription() ? album.description.toLowerCase().contains(query.toLowerCase()) : false);
     }).toList();
   }
 
   // 按创建时间排序
   void sortByCreatedAt({bool ascending = false}) {
-    _albums.sort((a, b) {
+    _albums.sort((pb.Album a, pb.Album b) {
       return ascending 
-          ? (a.createdAt ?? DateTime(0)).compareTo(b.createdAt ?? DateTime(0))
-          : (b.createdAt ?? DateTime(0)).compareTo(a.createdAt ?? DateTime(0));
+          ? a.createdAt.compareTo(b.createdAt)
+          : b.createdAt.compareTo(a.createdAt);
     });
   }
 
   // 按名称排序
   void sortByName({bool ascending = true}) {
-    _albums.sort((a, b) {
+    _albums.sort((pb.Album a, pb.Album b) {
       return ascending 
-          ? (a.name ?? '').compareTo(b.name ?? '')
-          : (b.name ?? '').compareTo(a.name ?? '');
+          ? a.name.compareTo(b.name)
+          : b.name.compareTo(a.name);
     });
   }
 
   // 按照片数量排序
   void sortByPhotoCount({bool ascending = false}) {
-    _albums.sort((a, b) {
+    _albums.sort((pb.Album a, pb.Album b) {
       return ascending 
-          ? (a.photoCount ?? 0).compareTo(b.photoCount ?? 0)
-          : (b.photoCount ?? 0).compareTo(a.photoCount ?? 0);
+          ? a.photoCount.compareTo(b.photoCount)
+          : b.photoCount.compareTo(a.photoCount);
     });
   }
 

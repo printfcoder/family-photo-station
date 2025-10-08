@@ -391,7 +391,7 @@ class _UsersScreenState extends State<UsersScreen> {
   }
 
   Widget _buildRoleChip(UserRole role) {
-    final color = role == UserRole.admin ? Colors.purple : Colors.blue;
+    final color = role == UserRole.USER_ROLE_ADMIN ? Colors.purple : Colors.blue;
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
       decoration: BoxDecoration(

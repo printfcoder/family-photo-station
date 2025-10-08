@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/models/user.dart';
+import 'package:family_photo_desktop/core/models/api_models.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
 import 'package:family_photo_desktop/core/services/storage_service.dart';
 
@@ -11,6 +12,7 @@ enum AuthStatus {
   authenticated,
   unauthenticated,
   error,
+  offline, // 新增离线状态
 }
 
 class AuthController extends GetxController {
@@ -21,18 +23,22 @@ class AuthController extends GetxController {
   final Rx<AuthStatus> _status = AuthStatus.initial.obs;
   final Rxn<User> _user = Rxn<User>();
   final RxnString _error = RxnString();
+  final RxBool _isOfflineMode = false.obs; // 新增离线模式标识
 
   // Getters
   AuthStatus get status => _status.value;
   User? get user => _user.value;
   String? get error => _error.value;
+  bool get isOfflineMode => _isOfflineMode.value;
   
   // 便捷的getter
   bool get isAuthenticated => _status.value == AuthStatus.authenticated;
   bool get isLoading => _status.value == AuthStatus.loading;
-  bool get isAdmin => _user.value?.role == UserRole.admin;
-  bool get canUpload => _user.value != null && _user.value!.isActive;
-  double get storageUsage => _user.value?.stats?.storageUsagePercentage ?? 0.0;
+  bool get isAdmin => _user.value?.role == UserRole.USER_ROLE_ADMIN;
+  bool get canUpload => _user.value != null && _user.value!.isActive && !_isOfflineMode.value;
+  double get storageUsage => _user.value?.stats?.totalStorageUsed != null 
+    ? (_user.value!.stats!.totalStorageUsed.toDouble() / (10 * 1024 * 1024 * 1024)) // Assume 10GB limit
+    : 0.0;
   UserStats? get userStats => _user.value?.stats;
 
   @override
@@ -53,6 +59,7 @@ class AuthController extends GetxController {
           _status.value = AuthStatus.authenticated;
           _user.value = user;
           _error.value = null;
+          _isOfflineMode.value = false;
           return;
         }
       }
@@ -60,9 +67,22 @@ class AuthController extends GetxController {
       _status.value = AuthStatus.unauthenticated;
       _user.value = null;
       _error.value = null;
+      _isOfflineMode.value = false;
     } catch (e) {
-      _status.value = AuthStatus.error;
+      // 网络错误或其他错误时，进入离线模式
+      _status.value = AuthStatus.offline;
       _error.value = e.toString();
+      _isOfflineMode.value = true;
+      
+      // 尝试从本地存储获取用户信息（如果有的话）
+      try {
+        final user = await _storageService.getUser();
+        if (user != null) {
+          _user.value = user;
+        }
+      } catch (_) {
+        // 忽略本地存储错误
+      }
     }
   }
 

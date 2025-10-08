@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:family_photo_desktop/core/controllers/album_controller.dart';
+import 'package:family_photo_desktop/features/albums/controllers/album_controller.dart';
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
 import 'package:family_photo_desktop/core/widgets/app_sidebar.dart';
 import 'package:family_photo_desktop/core/widgets/loading_widget.dart';
 import 'package:family_photo_desktop/core/widgets/empty_state_widget.dart';
-import 'package:family_photo_desktop/core/models/album.dart';
+import 'package:family_photo_desktop/core/models/album.pb.dart' as pb;
 
 class AlbumsScreen extends StatefulWidget {
   const AlbumsScreen({super.key});
@@ -45,16 +45,16 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     
     switch (sort) {
       case 'newest':
-        _albumController.sortByCreatedAt(ascending: false);
+        _albumController.setSortBy(AlbumSortBy.newest);
         break;
       case 'oldest':
-        _albumController.sortByCreatedAt(ascending: true);
+        _albumController.setSortBy(AlbumSortBy.oldest);
         break;
       case 'name':
-        _albumController.sortByName(ascending: true);
+        _albumController.setSortBy(AlbumSortBy.name);
         break;
       case 'photos':
-        _albumController.sortByPhotoCount(ascending: false);
+        _albumController.setSortBy(AlbumSortBy.photoCount);
         break;
     }
   }
@@ -78,15 +78,15 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                 Expanded(
                   child: GetBuilder<AlbumController>(
                     builder: (controller) {
-                      if (controller.isLoading && controller.albums.isEmpty) {
+                      if (controller.isLoading.value && controller.allAlbums.isEmpty) {
                         return const LoadingWidget(message: '正在加载相册...');
                       }
 
-                      if (controller.error != null) {
-                        return _buildErrorState(controller.error!);
+                      if (controller.error.value.isNotEmpty) {
+                        return _buildErrorState(controller.error.value);
                       }
 
-                      if (controller.albums.isEmpty) {
+                      if (controller.allAlbums.isEmpty) {
                         return const EmptyStateWidget(
                           icon: Icons.photo_album_outlined,
                           title: '暂无相册',
@@ -237,14 +237,15 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
   }
 
   Widget _buildAlbumContent(AlbumController controller) {
-    if (_isGridView) {
-      return _buildGridView(controller.albums);
+    final List<pb.Album> albumList = List<pb.Album>.from(controller.filteredAlbums);
+    if (controller.viewMode.value == AlbumViewMode.grid) {
+      return _buildGridView(albumList);
     } else {
-      return _buildListView(controller.albums);
+      return _buildListView(albumList);
     }
   }
 
-  Widget _buildGridView(List<Album> albums) {
+  Widget _buildGridView(List<pb.Album> albums) {
     return GridView.builder(
       padding: const EdgeInsets.all(16),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -261,7 +262,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     );
   }
 
-  Widget _buildListView(List<Album> albums) {
+  Widget _buildListView(List<pb.Album> albums) {
     return ListView.builder(
       padding: const EdgeInsets.all(16),
       itemCount: albums.length,
@@ -275,8 +276,8 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
               child: SizedBox(
                 width: 60,
                 height: 60,
-                child: album.hasCover
-                    ? Image.network(
+                child: album.hasCoverPhotoId() && album.coverPhotoId.isNotEmpty
+                     ? Image.network(
                         'https://via.placeholder.com/60', // TODO: 使用实际封面图片
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) {
@@ -292,18 +293,18 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                       ),
               ),
             ),
-            title: Text(album.name),
+            title: Text(album.hasName() ? album.name : 'Untitled Album'),
             subtitle: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (album.description.isNotEmpty)
+                if (album.hasDescription() && album.description.isNotEmpty)
                   Text(
                     album.description,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                   ),
                 Text(
-                  '${album.photoCount} 张照片 • ${_formatDateTime(album.createdAt)}',
+                  '${album.hasPhotoCount() ? album.photoCount : 0} 张照片 • ${_formatDateTime(album.hasCreatedAt() ? DateTime.fromMillisecondsSinceEpoch(album.createdAt.toInt()) : DateTime.now())}',
                   style: Theme.of(context).textTheme.bodySmall,
                 ),
               ],
@@ -370,7 +371,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     );
   }
 
-  Widget _buildAlbumCard(Album album) {
+  Widget _buildAlbumCard(pb.Album album) {
     return Card(
       clipBehavior: Clip.antiAlias,
       child: InkWell(
@@ -381,7 +382,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
             // 封面图片
             Expanded(
               flex: 3,
-              child: album.hasCover
+              child: album.hasCoverPhotoId() && album.coverPhotoId.isNotEmpty
                   ? Image.network(
                       'https://via.placeholder.com/200', // TODO: 使用实际封面图片
                       fit: BoxFit.cover,
@@ -408,7 +409,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                   children: [
                     // 相册名称
                     Text(
-                      album.name,
+                      album.hasName() ? album.name : 'Untitled Album',
                       style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
                       ),
@@ -420,7 +421,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                     
                     // 照片数量
                     Text(
-                      '${album.photoCount} 张照片',
+                      '${album.hasPhotoCount() ? album.photoCount : 0} 张照片',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
@@ -432,14 +433,14 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
                     Row(
                       children: [
                         Icon(
-                          album.isPublic ? Icons.public : Icons.lock,
+                          album.hasIsPublic() && album.isPublic ? Icons.public : Icons.lock,
                           size: 16,
                           color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                         ),
                         const SizedBox(width: 4),
                         Expanded(
                           child: Text(
-                            _formatDateTime(album.createdAt),
+                            _formatDateTime(album.hasCreatedAt() ? DateTime.fromMillisecondsSinceEpoch(album.createdAt.toInt()) : DateTime.now()),
                             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                               color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                             ),
@@ -539,17 +540,17 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     );
   }
 
-  void _handleAlbumTap(Album album) {
+  void _handleAlbumTap(pb.Album album) {
     // TODO: 实现相册详情查看
     Get.snackbar(
       '相册详情',
-      '正在查看相册: ${album.name}',
+      '正在查看相册: ${album.hasName() ? album.name : 'Untitled Album'}',
       backgroundColor: Theme.of(context).colorScheme.primary,
       colorText: Colors.white,
     );
   }
 
-  void _handleAlbumAction(Album album, String action) {
+  void _handleAlbumAction(pb.Album album, String action) {
     switch (action) {
       case 'view':
         _handleAlbumTap(album);
@@ -635,9 +636,8 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
 
                 Navigator.of(context).pop();
                 _albumController.createAlbum(
-                  nameController.text.trim(),
-                  descriptionController.text.trim(),
-                  isPublic: isPublic,
+                  name: nameController.text.trim(),
+                  description: descriptionController.text.trim(),
                 );
                 Get.snackbar(
                   '创建成功',
@@ -654,10 +654,10 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     );
   }
 
-  void _showEditAlbumDialog(Album album) {
-    final nameController = TextEditingController(text: album.name);
-    final descriptionController = TextEditingController(text: album.description);
-    bool isPublic = album.isPublic;
+  void _showEditAlbumDialog(pb.Album album) {
+    final nameController = TextEditingController(text: album.hasName() ? album.name : '');
+    final descriptionController = TextEditingController(text: album.hasDescription() ? album.description : '');
+    bool isPublic = album.hasIsPublic() ? album.isPublic : false;
 
     showDialog(
       context: context,
@@ -718,10 +718,9 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
 
                 Navigator.of(context).pop();
                 _albumController.updateAlbum(
-                  album.id,
-                  nameController.text.trim(),
-                  descriptionController.text.trim(),
-                  isPublic: isPublic,
+                  albumId: album.id,
+                  name: nameController.text.trim(),
+                  description: descriptionController.text.trim(),
                 );
                 Get.snackbar(
                   '更新成功',
@@ -738,12 +737,12 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
     );
   }
 
-  void _showDeleteConfirmDialog(Album album) {
+  void _showDeleteConfirmDialog(pb.Album album) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('确认删除'),
-        content: Text('确定要删除相册 "${album.name}" 吗？此操作无法撤销。'),
+        content: Text('确定要删除相册 "${album.hasName() ? album.name : 'Untitled Album'}" 吗？此操作无法撤销。'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -752,7 +751,7 @@ class _AlbumsScreenState extends State<AlbumsScreen> {
           ElevatedButton(
             onPressed: () {
               Navigator.of(context).pop();
-              _albumController.deleteAlbum(album.id);
+              _albumController.deleteAlbum(album.hasId() ? album.id : '');
               Get.snackbar(
                 '删除成功',
                 '相册已删除',

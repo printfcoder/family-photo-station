@@ -5,7 +5,7 @@ package family_photo;
 option java_package = "com.familyphoto.models";
 option go_package = "github.com/family-photo-station/models";
 
-// 相册模型
+// Album model
 message Album {
   string id = 1;
   string name = 2;
@@ -14,12 +14,12 @@ message Album {
   string creator_id = 5;
   bool is_public = 6;
   int32 photo_count = 7;
-  int64 created_at = 8; // Unix时间戳（毫秒）
-  int64 updated_at = 9; // Unix时间戳（毫秒）
-  optional int64 deleted_at = 10; // Unix时间戳（毫秒）
+  int64 created_at = 8; // Unix timestamp (milliseconds)
+  int64 updated_at = 9; // Unix timestamp (milliseconds)
+  optional int64 deleted_at = 10; // Unix timestamp (milliseconds)
 }
 
-// 相册列表
+// Album list response
 message AlbumList {
   repeated Album albums = 1;
   int32 total_count = 2;

@@ -1,13 +1,13 @@
 package main
 
 import (
-	"context"
-	"family-photo-station/internal/config"
-	"family-photo-station/internal/database"
-	"family-photo-station/internal/handler"
-	"family-photo-station/internal/middleware"
-	"family-photo-station/internal/service"
 	"log"
+
+	"github.com/printfcoder/family-photo-station/config"
+	"github.com/printfcoder/family-photo-station/database"
+	"github.com/printfcoder/family-photo-station/handler"
+	"github.com/printfcoder/family-photo-station/middleware"
+	"github.com/printfcoder/family-photo-station/service"
 
 	"github.com/cloudwego/hertz/pkg/app/server"
 	"github.com/cloudwego/hertz/pkg/common/hlog"
@@ -18,13 +18,13 @@ func main() {
 	cfg := config.Load()
 
 	// 初始化数据库
-	db, err := database.Init(cfg)
+	err := database.Init(cfg)
 	if err != nil {
 		log.Fatal("Failed to initialize database:", err)
 	}
 
 	// 初始化服务层
-	services := service.NewServices(db, cfg)
+	services := service.NewServices(database.DB, cfg)
 
 	// 初始化处理器
 	handlers := handler.NewHandlers(services)

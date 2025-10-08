@@ -8,6 +8,7 @@ import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
 import 'package:family_photo_desktop/core/controllers/photo_controller.dart';
 import 'package:family_photo_desktop/core/controllers/album_controller.dart';
 import 'package:family_photo_desktop/core/controllers/user_controller.dart';
+import 'package:family_photo_desktop/core/controllers/network_controller.dart';
 import 'package:family_photo_desktop/core/services/storage_service.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
 import 'package:family_photo_desktop/core/theme/app_theme.dart';
@@ -47,6 +48,7 @@ void main() async {
   Get.put(PhotoController());
   Get.put(AlbumController());
   Get.put(UserController());
+  Get.put(NetworkController());
   
   runApp(const FamilyPhotoDesktopApp());
 }

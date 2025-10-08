@@ -166,7 +166,7 @@ class UserController extends GetxController {
       // Update local user
       final index = _allUsers.indexWhere((u) => u.id == userId);
       if (index != -1) {
-        _allUsers[index] = user.copyWith(isActive: newStatus);
+        _allUsers[index] = user.copyWith((u) => u.isActive = newStatus);
       }
       
       Get.snackbar(
@@ -261,7 +261,7 @@ class UserController extends GetxController {
       // Update local user
       final index = _allUsers.indexWhere((u) => u.id == userId);
       if (index != -1) {
-        _allUsers[index] = _allUsers[index].copyWith(role: role);
+        _allUsers[index] = _allUsers[index].copyWith((u) => u.role = role);
       }
       
       Get.snackbar(
@@ -316,7 +316,7 @@ class UserController extends GetxController {
         users = users.where((user) => !user.isActive).toList();
         break;
       case UserFilterBy.admin:
-        users = users.where((user) => user.role == UserRole.admin).toList();
+        users = users.where((user) => user.role == UserRole.USER_ROLE_ADMIN).toList();
         break;
     }
     
@@ -367,7 +367,7 @@ class UserController extends GetxController {
       case UserFilterBy.inactive:
         return 'Inactive Users';
       case UserFilterBy.admin:
-        return 'Administrators';
+        return 'Admins';
     }
   }
 }
