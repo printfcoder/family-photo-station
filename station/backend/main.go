@@ -1,26 +1,27 @@
 package main
 
 import (
-	"log"
+    "github.com/printfcoder/family-photo-station/config"
+    "github.com/printfcoder/family-photo-station/database"
+    "github.com/printfcoder/family-photo-station/handler"
+    appLog "github.com/printfcoder/family-photo-station/logger"
+    "github.com/printfcoder/family-photo-station/middleware"
+    "github.com/printfcoder/family-photo-station/service"
 
-	"github.com/printfcoder/family-photo-station/config"
-	"github.com/printfcoder/family-photo-station/database"
-	"github.com/printfcoder/family-photo-station/handler"
-	"github.com/printfcoder/family-photo-station/middleware"
-	"github.com/printfcoder/family-photo-station/service"
-
-	"github.com/cloudwego/hertz/pkg/app/server"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+    "github.com/cloudwego/hertz/pkg/app/server"
 )
 
 func main() {
+	// 初始化日志
+	appLog.Init()
+
 	// 加载配置
 	cfg := config.Load()
 
 	// 初始化数据库
 	err := database.Init(cfg)
 	if err != nil {
-		log.Fatal("Failed to initialize database:", err)
+		appLog.Fatalf("Failed to initialize database: %v", err)
 	}
 
 	// 初始化服务层
@@ -42,7 +43,7 @@ func main() {
 	// 注册路由
 	registerRoutes(h, handlers)
 
-	hlog.Infof("Server starting on %s", cfg.Server.Address)
+	appLog.Infof("Server starting on %s", cfg.Server.Address)
 	h.Spin()
 }
 

@@ -202,6 +202,18 @@ class AuthController extends GetxController {
     }
   }
 
+  // 设置离线模式
+  void setOfflineMode() {
+    _status.value = AuthStatus.offline;
+    _isOfflineMode.value = true;
+    _error.value = null;
+  }
+
+  // 检查认证状态（公开方法）
+  Future<void> checkAuthStatus() async {
+    await _checkAuthStatus();
+  }
+
   // 清除错误
   void clearError() {
     _error.value = null;

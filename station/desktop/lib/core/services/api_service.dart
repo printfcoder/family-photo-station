@@ -7,6 +7,8 @@ import 'package:family_photo_desktop/core/models/user.dart';
 import 'package:family_photo_desktop/core/models/photo.dart';
 import 'package:family_photo_desktop/core/models/api_models.dart';
 import 'package:family_photo_desktop/core/services/storage_service.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
+import 'package:family_photo_desktop/core/controllers/network_controller.dart';
 
 part 'api_service.g.dart';
 
@@ -218,6 +220,13 @@ class ApiClient {
                 // 重试失败，继续原错误处理
               }
             }
+          }
+          // 将错误传递给网络控制器用于 UI 显示
+          try {
+            final networkController = Get.find<NetworkController>();
+            networkController.handleNetworkError(error);
+          } catch (_) {
+            // 如果控制器尚未初始化，则忽略
           }
           handler.next(error);
         },

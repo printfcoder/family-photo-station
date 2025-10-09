@@ -18,6 +18,7 @@ Thumbs.db
 # Logs
 *.log
 logs/
+log/
 
 # Runtime data
 pids
@@ -31,6 +32,7 @@ pids
 .env.development.local
 .env.test.local
 .env.production.local
+.env.production
 
 # Temporary files
 tmp/
@@ -40,6 +42,7 @@ temp/
 dist/
 build/
 out/
+bin/
 
 # Dependencies
 node_modules/
@@ -63,6 +66,10 @@ vendor/
 
 # Go workspace file
 go.work
+
+# Go binary names
+main
+family-photo-station
 
 # Flutter/Dart specific
 # Files and directories created by pub
@@ -91,6 +98,11 @@ doc/api/
 **/ios/Flutter/.last_build_id
 .flutter-plugins
 .flutter-plugins-dependencies
+.pub-cache/
+.pub/
+
+# Flutter build artifacts
+**/build/
 
 # Symbolication related
 app.*.symbols
@@ -111,13 +123,36 @@ app.*.map.json
 # Configuration files with sensitive data
 config/production.yaml
 config/secrets.yaml
+config.local.yaml
 
 # Uploaded files and media
 uploads/
 media/
 photos/
 thumbnails/
+data/
 
 # Backup files
 *.bak
 *.backup
+
+# Generated files
+generated/
+models/
+
+# Development tools
+devtools_options.yaml
+
+# Platform specific metadata
+.metadata
+
+# Cache directories
+.pub-cache/
+.dart_tool/
+
+# Test coverage
+coverage/
+
+# Protobuf generated files (if not needed in repo)
+# *.pb.go
+# *.pb.dart

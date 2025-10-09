@@ -1,13 +1,13 @@
 package middleware
 
 import (
-	"context"
-	"net/http"
-	"strings"
+    "context"
+    "net/http"
+    "strings"
 
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
-	"github.com/printfcoder/family-photo-station/handler"
+    "github.com/cloudwego/hertz/pkg/app"
+    "github.com/printfcoder/family-photo-station/handler"
+    appLog "github.com/printfcoder/family-photo-station/logger"
 )
 
 // JWTAuth JWT认证中间件
@@ -50,7 +50,7 @@ func JWTAuth() app.HandlerFunc {
 
 		// TODO: 实际的token验证逻辑
 		// 这里暂时跳过验证，后续需要实现完整的JWT验证
-		hlog.Infof("JWT token received: %s", token)
+		appLog.Infof("JWT token received: %s", token)
 
 		// 继续处理请求
 		c.Next(ctx)
@@ -65,7 +65,7 @@ func CORS() app.HandlerFunc {
 // Logger 日志中间件
 func Logger() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
-		hlog.Infof("Request: %s %s", c.Method(), c.URI().String())
+		appLog.Infof("Request: %s %s", c.Method(), c.URI().String())
 		c.Next(ctx)
 	}
 }
@@ -75,7 +75,7 @@ func Recovery() app.HandlerFunc {
 	return func(ctx context.Context, c *app.RequestContext) {
 		defer func() {
 			if err := recover(); err != nil {
-				hlog.Errorf("Panic recovered: %v", err)
+				appLog.Errorf("Panic recovered: %v", err)
 				c.JSON(http.StatusInternalServerError, handler.Response{
 					Code:    500,
 					Message: "服务器内部错误",

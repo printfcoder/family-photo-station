@@ -86,6 +86,7 @@ flutter:
     - assets/images/
     - assets/icons/
     - assets/fonts/
+
   
   # 字体配置
   # fonts:

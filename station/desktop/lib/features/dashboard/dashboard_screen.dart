@@ -3,7 +3,6 @@ import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
-import 'package:family_photo_desktop/core/widgets/network_status_banner.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -64,8 +63,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
     return Scaffold(
       body: Column(
         children: [
-          // 网络状态横幅
-          const NetworkStatusBanner(),
           // 主要内容
           Expanded(
             child: Row(

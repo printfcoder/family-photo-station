@@ -1,12 +1,13 @@
 import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/models/user.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
+import 'package:protobuf/protobuf.dart';
 
 // Import enums from separate file
 import '../models/user_enums.dart';
 
 class UserController extends GetxController {
-  final ApiService _apiService = Get.find<ApiService>();
+  final ApiClient _apiClient = ApiClient.instance;
 
   // Observable state
   final RxList<User> _allUsers = <User>[].obs;
@@ -43,7 +44,7 @@ class UserController extends GetxController {
       isLoading.value = true;
       error.value = '';
       
-      final users = await _apiService.getUsers(1, 100);
+      final users = await _apiClient.api.getUsers(1, 100);
       _allUsers.assignAll(users);
     } catch (e) {
       error.value = e.toString();
@@ -126,7 +127,7 @@ class UserController extends GetxController {
         if (displayName != null) 'display_name': displayName,
       };
       
-      await _apiService.inviteUser(userData);
+      await _apiClient.api.inviteUser(userData);
       
       Get.snackbar(
         'Success',
@@ -161,12 +162,12 @@ class UserController extends GetxController {
         'is_active': newStatus,
       };
       
-      await _apiService.updateUserStatus(userId, statusData);
+      await _apiClient.api.updateUserStatus(userId, statusData);
       
       // Update local user
       final index = _allUsers.indexWhere((u) => u.id == userId);
       if (index != -1) {
-        _allUsers[index] = user.copyWith((u) => u.isActive = newStatus);
+        _allUsers[index] = user.rebuild((u) => u.isActive = newStatus);
       }
       
       Get.snackbar(
@@ -189,7 +190,7 @@ class UserController extends GetxController {
   // Delete user
   Future<void> deleteUser(String userId) async {
     try {
-      await _apiService.deleteUser(userId);
+      await _apiClient.api.deleteUser(userId);
       
       // Remove from local list
       _allUsers.removeWhere((user) => user.id == userId);
@@ -217,12 +218,13 @@ class UserController extends GetxController {
     try {
       isLoading.value = true;
       error.value = '';
+      final deletedCount = selectedUsers.length;
       
       final userIdsData = {
         'user_ids': selectedUsers.toList(),
       };
       
-      await _apiService.deleteUsers(userIdsData);
+      await _apiClient.api.deleteUsers(userIdsData);
       
       // Remove from local list
       _allUsers.removeWhere((user) => selectedUsers.contains(user.id));
@@ -231,7 +233,7 @@ class UserController extends GetxController {
       
       Get.snackbar(
         'Success',
-        '${selectedUsers.length} users deleted successfully',
+        '$deletedCount users deleted successfully',
         snackPosition: SnackPosition.BOTTOM,
       );
     } catch (e) {
@@ -256,12 +258,12 @@ class UserController extends GetxController {
         'role': role.toString().split('.').last,
       };
       
-      await _apiService.updateUserRole(userId, roleData);
+      await _apiClient.api.updateUserRole(userId, roleData);
       
       // Update local user
       final index = _allUsers.indexWhere((u) => u.id == userId);
       if (index != -1) {
-        _allUsers[index] = _allUsers[index].copyWith((u) => u.role = role);
+        _allUsers[index] = _allUsers[index].rebuild((u) => u.role = role);
       }
       
       Get.snackbar(
@@ -300,7 +302,7 @@ class UserController extends GetxController {
         final query = searchQuery.value.toLowerCase();
         return user.username.toLowerCase().contains(query) ||
                user.email.toLowerCase().contains(query) ||
-               (user.displayName?.toLowerCase().contains(query) ?? false);
+               user.displayName.toLowerCase().contains(query);
       }).toList();
     }
     
@@ -330,8 +332,8 @@ class UserController extends GetxController {
         break;
       case UserSortBy.name:
         users.sort((a, b) {
-          final aName = a.displayName ?? a.username;
-          final bName = b.displayName ?? b.username;
+          final aName = a.displayName.isNotEmpty ? a.displayName : a.username;
+          final bName = b.displayName.isNotEmpty ? b.displayName : b.username;
           return aName.toLowerCase().compareTo(bName.toLowerCase());
         });
         break;

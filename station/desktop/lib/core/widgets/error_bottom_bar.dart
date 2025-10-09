@@ -2,44 +2,40 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/controllers/network_controller.dart';
 
-class NetworkStatusBanner extends StatelessWidget {
-  const NetworkStatusBanner({super.key});
+class ErrorBottomBar extends StatelessWidget {
+  const ErrorBottomBar({super.key});
 
   @override
   Widget build(BuildContext context) {
     return GetBuilder<NetworkController>(
-      init: NetworkController(),
       builder: (controller) {
-        if (controller.isConnected) {
-          return const SizedBox.shrink();
-        }
+        final hasError = controller.errorMessage.isNotEmpty;
+        if (!hasError) return const SizedBox.shrink();
 
         return Container(
           width: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.error,
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.1),
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+                blurRadius: 8,
+                offset: const Offset(0, -2),
               ),
             ],
           ),
           child: Row(
             children: [
               Icon(
-                Icons.wifi_off,
+                Icons.error_outline,
                 color: Theme.of(context).colorScheme.onError,
                 size: 20,
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: Text(
-                  controller.errorMessage.isNotEmpty 
-                    ? controller.errorMessage
-                    : '无法连接到服务器，请检查网络连接或稍后重试',
+                  controller.errorMessage,
                   style: TextStyle(
                     color: Theme.of(context).colorScheme.onError,
                     fontSize: 14,
@@ -48,26 +44,20 @@ class NetworkStatusBanner extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: 12),
-              TextButton.icon(
+              TextButton(
                 onPressed: () => controller.checkConnection(),
-                icon: Icon(
-                  Icons.refresh,
-                  color: Theme.of(context).colorScheme.onError,
-                  size: 16,
-                ),
-                label: Text(
-                  '重试',
-                  style: TextStyle(
-                    color: Theme.of(context).colorScheme.onError,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
                 style: TextButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                  minimumSize: Size.zero,
-                  tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  foregroundColor: Theme.of(context).colorScheme.onError,
+                  textStyle: const TextStyle(fontWeight: FontWeight.w600),
                 ),
+                child: const Text('重试'),
+              ),
+              IconButton(
+                onPressed: () => controller.resetConnectionStatus(),
+                icon: const Icon(Icons.close, size: 18),
+                color: Theme.of(context).colorScheme.onError.withValues(alpha: 0.8),
+                constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                padding: EdgeInsets.zero,
               ),
             ],
           ),

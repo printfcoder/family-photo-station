@@ -1,19 +1,19 @@
 package database
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"path/filepath"
-	"time"
+    "fmt"
+    "os"
+    "path/filepath"
+    "time"
 
-	"github.com/printfcoder/family-photo-station/config"
-	model2 "github.com/printfcoder/family-photo-station/model"
+    "github.com/printfcoder/family-photo-station/config"
+    appLog "github.com/printfcoder/family-photo-station/logger"
+    model2 "github.com/printfcoder/family-photo-station/model"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	gormLogger "gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -22,7 +22,7 @@ func Init(cfg *config.Config) error {
 	var err error
 	var dialector gorm.Dialector
 
-	log.Printf("Initializing database with type: %s", cfg.Database.Type)
+	appLog.Infof("Initializing database, type=%s", cfg.Database.Type)
 
 	// 根据配置选择数据库驱动
 	switch cfg.Database.Type {
@@ -36,47 +36,56 @@ func Init(cfg *config.Config) error {
 			cfg.Database.SSLMode,
 			cfg.Database.TimeZone,
 		)
-		log.Printf("Connecting to PostgreSQL database: %s@%s:%d/%s", 
-			cfg.Database.User, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
+		appLog.Infof("Connecting to PostgreSQL database user=%s host=%s port=%d db=%s", cfg.Database.User, cfg.Database.Host, cfg.Database.Port, cfg.Database.Name)
 		dialector = postgres.Open(dsn)
 	case "sqlite":
 		// 检查并创建SQLite数据库文件目录
 		dbPath := cfg.Database.Path
 		dbDir := filepath.Dir(dbPath)
-		
-		log.Printf("SQLite database path: %s", dbPath)
-		log.Printf("Checking database directory: %s", dbDir)
-		
+
+		appLog.Infof("SQLite database path: %s", dbPath)
+		appLog.Infof("Checking database directory: %s", dbDir)
+
 		// 检查目录是否存在，不存在则创建
 		if _, err := os.Stat(dbDir); os.IsNotExist(err) {
-			log.Printf("Database directory does not exist, creating: %s", dbDir)
+			appLog.Warnf("Database directory does not exist, creating: %s", dbDir)
 			if err := os.MkdirAll(dbDir, 0755); err != nil {
 				return fmt.Errorf("failed to create database directory %s: %w", dbDir, err)
 			}
-			log.Printf("Database directory created successfully: %s", dbDir)
+			appLog.Infof("Database directory created successfully: %s", dbDir)
 		} else if err != nil {
 			return fmt.Errorf("failed to check database directory %s: %w", dbDir, err)
 		} else {
-			log.Printf("Database directory already exists: %s", dbDir)
+			appLog.Infof("Database directory already exists: %s", dbDir)
 		}
-		
+
+		// 主动创建SQLite数据库文件（如果不存在）
+		if _, err := os.Stat(dbPath); os.IsNotExist(err) {
+			f, createErr := os.Create(dbPath)
+			if createErr != nil {
+				return fmt.Errorf("failed to create sqlite db file %s: %w", dbPath, createErr)
+			}
+			_ = f.Close()
+			appLog.Infof("SQLite database file created: %s", dbPath)
+		}
+
 		dialector = sqlite.Open(dbPath)
 	default:
 		return fmt.Errorf("unsupported database type: %s", cfg.Database.Type)
 	}
 
 	// GORM配置
-	gormConfig := &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
-	}
+    gormConfig := &gorm.Config{
+        Logger: NewGormLogger().LogMode(gormLogger.Warn),
+    }
 
 	// 连接数据库
-	log.Printf("Attempting to connect to database...")
+	appLog.Info("Attempting to connect to database...")
 	DB, err = gorm.Open(dialector, gormConfig)
 	if err != nil {
 		return fmt.Errorf("failed to connect database: %w", err)
 	}
-	log.Printf("Database connection established successfully")
+	appLog.Info("Database connection established successfully")
 
 	// 获取底层sql.DB对象进行连接池配置
 	sqlDB, err := DB.DB()
@@ -85,27 +94,26 @@ func Init(cfg *config.Config) error {
 	}
 
 	// 设置连接池参数
-	log.Printf("Configuring connection pool - MaxIdle: %d, MaxOpen: %d, MaxLifetime: %d minutes", 
-		cfg.Database.MaxIdleConns, cfg.Database.MaxOpenConns, cfg.Database.ConnMaxLifetime)
+	appLog.Infof("Configuring connection pool max_idle=%d max_open=%d max_lifetime_min=%d", cfg.Database.MaxIdleConns, cfg.Database.MaxOpenConns, cfg.Database.ConnMaxLifetime)
 	sqlDB.SetMaxIdleConns(cfg.Database.MaxIdleConns)
 	sqlDB.SetMaxOpenConns(cfg.Database.MaxOpenConns)
 	sqlDB.SetConnMaxLifetime(time.Duration(cfg.Database.ConnMaxLifetime) * time.Minute)
 
 	// 自动迁移数据库表
-	log.Printf("Starting database migration...")
+	appLog.Info("Starting database migration...")
 	if err := autoMigrate(); err != nil {
 		return fmt.Errorf("failed to migrate database: %w", err)
 	}
-	log.Printf("Database migration completed successfully")
+	appLog.Info("Database migration completed successfully")
 
 	// 初始化默认数据
-	log.Printf("Initializing default data...")
+	appLog.Info("Initializing default data...")
 	if err := initDefaultData(); err != nil {
 		return fmt.Errorf("failed to init default data: %w", err)
 	}
-	log.Printf("Default data initialization completed")
+	appLog.Info("Default data initialization completed")
 
-	log.Println("Database connected and migrated successfully")
+	appLog.Info("Database connected and migrated successfully")
 	return nil
 }
 
@@ -199,7 +207,7 @@ func initDefaultData() error {
 		}
 	}
 
-	log.Println("Default system configurations created")
+	appLog.Info("Default system configurations created")
 	return nil
 }
 

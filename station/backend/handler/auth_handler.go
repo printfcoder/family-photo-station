@@ -1,13 +1,13 @@
 package handler
 
 import (
-	"context"
-	"net/http"
+    "context"
+    "net/http"
 
-	"github.com/printfcoder/family-photo-station/service"
+    "github.com/printfcoder/family-photo-station/service"
 
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+    "github.com/cloudwego/hertz/pkg/app"
+    appLog "github.com/printfcoder/family-photo-station/logger"
 )
 
 type AuthHandler struct {
@@ -35,7 +35,7 @@ func (h *AuthHandler) Register(ctx context.Context, c *app.RequestContext) {
 
 	user, err := h.authService.Register(&req)
 	if err != nil {
-		hlog.Errorf("Register failed: %v", err)
+		appLog.Errorf("Register failed: %v", err)
 		c.JSON(http.StatusBadRequest, Response{
 			Code:    400,
 			Message: "注册失败",
@@ -67,7 +67,7 @@ func (h *AuthHandler) Login(ctx context.Context, c *app.RequestContext) {
 
 	tokenResponse, err := h.authService.Login(&req)
 	if err != nil {
-		hlog.Errorf("Login failed: %v", err)
+		appLog.Errorf("Login failed: %v", err)
 		c.JSON(http.StatusUnauthorized, Response{
 			Code:    401,
 			Message: "登录失败",
@@ -103,7 +103,7 @@ func (h *AuthHandler) RefreshToken(ctx context.Context, c *app.RequestContext) {
 
 	tokenResponse, err := h.authService.RefreshToken(req.RefreshToken)
 	if err != nil {
-		hlog.Errorf("RefreshToken failed: %v", err)
+		appLog.Errorf("RefreshToken failed: %v", err)
 		c.JSON(http.StatusUnauthorized, Response{
 			Code:    401,
 			Message: "刷新令牌失败",
@@ -133,7 +133,7 @@ func (h *AuthHandler) Logout(ctx context.Context, c *app.RequestContext) {
 		return
 	}
 
-	hlog.Infof("User %v logged out", userID)
+	appLog.Infof("User %v logged out", userID)
 
 	c.JSON(http.StatusOK, Response{
 		Code:    200,

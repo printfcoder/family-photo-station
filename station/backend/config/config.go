@@ -1,10 +1,11 @@
 package config
 
 import (
-	"log"
-	"strings"
+    "fmt"
+    "strings"
 
-	"github.com/spf13/viper"
+    appLog "github.com/printfcoder/family-photo-station/logger"
+    "github.com/spf13/viper"
 )
 
 type Config struct {
@@ -25,12 +26,12 @@ type DatabaseConfig struct {
 	Type            string `mapstructure:"type"`
 	Host            string `mapstructure:"host"`
 	Port            int    `mapstructure:"port"`
-	User            string `mapstructure:"username"`
+	User            string `mapstructure:"user"`
 	Username        string `mapstructure:"username"`
 	Password        string `mapstructure:"password"`
-	Name            string `mapstructure:"database"`
+	Name            string `mapstructure:"name"`
 	Database        string `mapstructure:"database"`
-	SSLMode         string `mapstructure:"ssl_mode"`
+	SSLMode         string `mapstructure:"sslmode"`
 	TimeZone        string `mapstructure:"timezone"`
 	Path            string `mapstructure:"path"`
 	MaxIdleConns    int    `mapstructure:"max_idle_conns"`
@@ -78,12 +79,21 @@ func Load() *Config {
 	viper.SetEnvKeyReplacer(strings.NewReplacer(".", "_"))
 
 	if err := viper.ReadInConfig(); err != nil {
-		log.Printf("Warning: Could not read config file: %v", err)
+		appLog.Warnf("Could not read config file: %v", err)
 	}
 
 	var config Config
 	if err := viper.Unmarshal(&config); err != nil {
-		log.Fatal("Failed to unmarshal config:", err)
+		appLog.Fatalf("Failed to unmarshal config: %v", err)
+	}
+
+	// 若配置文件使用了 server.host/port，则组合为 Address
+	if config.Server.Address == "" {
+		host := viper.GetString("server.host")
+		port := viper.GetInt("server.port")
+		if host != "" && port != 0 {
+			config.Server.Address = fmt.Sprintf("%s:%d", host, port)
+		}
 	}
 
 	return &config

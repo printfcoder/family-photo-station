@@ -1,15 +1,15 @@
 package middleware
 
 import (
-	"context"
-	"net/http"
-	"strings"
+    "context"
+    "net/http"
+    "strings"
 
-	"github.com/printfcoder/family-photo-station/handler"
-	"github.com/printfcoder/family-photo-station/service"
+    "github.com/printfcoder/family-photo-station/handler"
+    appLog "github.com/printfcoder/family-photo-station/logger"
+    "github.com/printfcoder/family-photo-station/service"
 
-	"github.com/cloudwego/hertz/pkg/app"
-	"github.com/cloudwego/hertz/pkg/common/hlog"
+    "github.com/cloudwego/hertz/pkg/app"
 )
 
 func AuthMiddleware(authService *service.AuthService) app.HandlerFunc {
@@ -40,7 +40,7 @@ func AuthMiddleware(authService *service.AuthService) app.HandlerFunc {
 		// 验证token
 		claims, err := authService.ValidateToken(token)
 		if err != nil {
-			hlog.Errorf("Token validation failed: %v", err)
+			appLog.Errorf("Token validation failed: %v", err)
 			c.JSON(http.StatusUnauthorized, handler.ErrorResponse(401, "认证令牌无效", err))
 			c.Abort()
 			return

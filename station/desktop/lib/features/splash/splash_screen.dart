@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
+import 'package:family_photo_desktop/core/controllers/network_controller.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -136,13 +137,37 @@ class _SplashScreenState extends State<SplashScreen>
                     
                     const SizedBox(height: 16),
                     
-                    // 加载文本
-                    const Text(
-                      '正在初始化...',
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.white70,
-                      ),
+                    // 加载文本（根据认证状态显示更详细的初始化信息）
+                    GetBuilder<AuthController>(
+                      builder: (authController) {
+                        return Text(
+                          _getLoadingText(authController.status),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white70,
+                          ),
+                        );
+                      },
+                    ),
+
+                    const SizedBox(height: 8),
+
+                    // 网络状态提示（如果有错误则显示）
+                    GetBuilder<NetworkController>(
+                      builder: (networkController) {
+                        if (networkController.isConnected ||
+                            networkController.errorMessage.isEmpty) {
+                          return const SizedBox.shrink();
+                        }
+                        return Text(
+                          networkController.errorMessage,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.white70,
+                          ),
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -152,5 +177,21 @@ class _SplashScreenState extends State<SplashScreen>
         ),
       ),
     );
+  }
+  String _getLoadingText(AuthStatus status) {
+    switch (status) {
+      case AuthStatus.initial:
+        return '正在初始化应用...';
+      case AuthStatus.loading:
+        return '正在验证身份并加载用户信息...';
+      case AuthStatus.authenticated:
+        return '登录成功，正在进入首页...';
+      case AuthStatus.unauthenticated:
+        return '未登录，请先完成登录';
+      case AuthStatus.error:
+        return '初始化失败，请稍后重试';
+      case AuthStatus.offline:
+        return '无法连接服务器，进入离线模式';
+    }
   }
 }

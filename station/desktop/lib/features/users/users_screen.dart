@@ -213,14 +213,14 @@ class _UsersScreenState extends State<UsersScreen> {
                             // Avatar
                             CircleAvatar(
                               radius: 24,
-                              backgroundImage: user.avatar != null
-                                  ? NetworkImage(user.avatar!)
+                              backgroundImage: user.avatar.isNotEmpty
+                                  ? NetworkImage(user.avatar)
                                   : null,
-                              child: user.avatar == null
+                              child: user.avatar.isEmpty
                                   ? Text(
-                                      (user.displayName?.isNotEmpty == true
-                                  ? user.displayName!.substring(0, 1).toUpperCase()
-                                  : user.username.substring(0, 1).toUpperCase()),
+                                      (user.displayName.isNotEmpty
+                                          ? user.displayName.substring(0, 1).toUpperCase()
+                                          : user.username.substring(0, 1).toUpperCase()),
                                       style: const TextStyle(
                                         fontSize: 18,
                                         fontWeight: FontWeight.bold,
@@ -238,7 +238,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                     children: [
                                       Expanded(
                                         child: Text(
-                                          user.displayName ?? user.username,
+                                          user.displayName.isNotEmpty ? user.displayName : user.username,
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w600,
@@ -281,9 +281,9 @@ class _UsersScreenState extends State<UsersScreen> {
                                       const SizedBox(width: 8),
                                       _buildRoleChip(user.role),
                                       const Spacer(),
-                                      if (user.stats != null)
+                                      if (user.hasStats())
                                         Text(
-                                          '${user.stats!.photoCount} photos',
+                                          '${user.stats.photoCount} photos',
                                           style: TextStyle(
                                             fontSize: 12,
                                             color: Colors.grey[500],
@@ -441,7 +441,7 @@ class _UsersScreenState extends State<UsersScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text(user.displayName ?? user.username),
+        title: Text(user.displayName.isNotEmpty ? user.displayName : user.username),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -450,11 +450,11 @@ class _UsersScreenState extends State<UsersScreen> {
             Text('Username: ${user.username}'),
             Text('Role: ${user.role.toString().split('.').last}'),
             Text('Status: ${user.isActive ? 'Active' : 'Inactive'}'),
-            Text('Created: ${user.createdAt.toString().split(' ')[0]}'),
-            if (user.stats != null) ...[
+            Text('Created: ${user.createdAt.toInt()}'),
+            if (user.hasStats()) ...[
               const SizedBox(height: 8),
-              Text('Photos: ${user.stats!.photoCount}'),
-              Text('Albums: ${user.stats!.albumCount}'),
+              Text('Photos: ${user.stats.photoCount}'),
+              Text('Albums: ${user.stats.albumCount}'),
             ],
           ],
         ),
@@ -473,8 +473,8 @@ class _UsersScreenState extends State<UsersScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text('${action.capitalize ?? action} User'),
-        content: Text('Are you sure you want to $action ${user.displayName ?? user.username}?'),
+        title: Text('${action[0].toUpperCase()}${action.substring(1)} User'),
+        content: Text('Are you sure you want to $action ${user.displayName.isNotEmpty ? user.displayName : user.username}?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -485,7 +485,7 @@ class _UsersScreenState extends State<UsersScreen> {
               Navigator.of(context).pop();
               userController.toggleUserActive(user.id);
             },
-            child: Text(action.capitalize ?? action),
+            child: Text('${action[0].toUpperCase()}${action.substring(1)}'),
           ),
         ],
       ),
@@ -497,7 +497,7 @@ class _UsersScreenState extends State<UsersScreen> {
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete User'),
-        content: Text('Are you sure you want to delete ${user.displayName ?? user.username}? This action cannot be undone.'),
+        content: Text('Are you sure you want to delete ${user.displayName.isNotEmpty ? user.displayName : user.username}? This action cannot be undone.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),

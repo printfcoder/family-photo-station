@@ -75,17 +75,43 @@ class NetworkController extends GetxController {
   void handleNetworkError(dynamic error) {
     if (error is DioException) {
       String errorMsg = '';
+      bool connected = true;
       switch (error.type) {
         case DioExceptionType.connectionTimeout:
         case DioExceptionType.sendTimeout:
         case DioExceptionType.receiveTimeout:
           errorMsg = '连接超时，请检查网络连接';
+          connected = false;
           break;
         case DioExceptionType.connectionError:
           errorMsg = '无法连接到服务器，请检查后端服务是否启动';
+          connected = false;
           break;
         case DioExceptionType.badResponse:
-          errorMsg = '服务器错误 (${error.response?.statusCode})';
+          final status = error.response?.statusCode;
+          if (status == 401) {
+            final data = error.response?.data;
+            String serverMsg = '';
+            if (data is Map && data['message'] is String) {
+              serverMsg = data['message'];
+            } else if (data is String) {
+              serverMsg = data;
+            }
+            errorMsg = serverMsg.isNotEmpty ? serverMsg : '未认证，请登录后重试';
+            connected = true;
+          } else if (status == 403) {
+            errorMsg = '权限不足，无法执行此操作';
+            connected = true;
+          } else if (status == 404) {
+            errorMsg = '接口不存在或路径错误 (404)';
+            connected = true;
+          } else if (status == 500) {
+            errorMsg = '服务器内部错误 (500)';
+            connected = true;
+          } else {
+            errorMsg = '服务器错误 ($status)';
+            connected = true;
+          }
           break;
         case DioExceptionType.cancel:
           errorMsg = '请求已取消';
@@ -93,12 +119,19 @@ class NetworkController extends GetxController {
         case DioExceptionType.unknown:
         default:
           errorMsg = '网络连接失败，请稍后重试';
+          connected = false;
           break;
       }
-      _setConnectionStatus(false, errorMsg);
+      _setConnectionStatus(connected, errorMsg);
     } else {
       _setConnectionStatus(false, '网络连接异常: ${error.toString()}');
     }
+  }
+
+  // 更新后端地址
+  void updateBaseUrl(String newBaseUrl) {
+    _dio.options.baseUrl = newBaseUrl;
+    checkConnection(); // 立即检查新地址的连接状态
   }
 
   // 重置连接状态

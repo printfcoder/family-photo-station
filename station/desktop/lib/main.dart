@@ -13,6 +13,7 @@ import 'package:family_photo_desktop/core/services/storage_service.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
 import 'package:family_photo_desktop/core/theme/app_theme.dart';
 import 'package:family_photo_desktop/core/router/app_router.dart';
+import 'package:family_photo_desktop/core/widgets/error_bottom_bar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -67,6 +68,21 @@ class FamilyPhotoDesktopApp extends StatelessWidget {
       routeInformationParser: AppRouter.router.routeInformationParser,
       routeInformationProvider: AppRouter.router.routeInformationProvider,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        return Scaffold(
+          body: Stack(
+            children: [
+              child ?? const SizedBox.shrink(),
+              const Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: ErrorBottomBar(),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

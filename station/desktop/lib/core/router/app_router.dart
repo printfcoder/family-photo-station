@@ -4,6 +4,7 @@ import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
 import 'package:family_photo_desktop/features/splash/splash_screen.dart';
+import 'package:family_photo_desktop/features/initialization/initialization_screen.dart';
 import 'package:family_photo_desktop/features/auth/login_screen.dart';
 import 'package:family_photo_desktop/features/auth/register_screen.dart';
 import 'package:family_photo_desktop/features/dashboard/dashboard_screen.dart';
@@ -31,7 +32,8 @@ class AppRouter {
       
       // 如果是离线状态，允许进入主页面（仪表板）
       if (isOffline) {
-        if (state.matchedLocation == AppRoutes.splash) {
+        if (state.matchedLocation == AppRoutes.splash || 
+            state.matchedLocation == AppRoutes.initialization) {
           return AppRoutes.dashboard;
         }
         // 离线状态下，不允许访问登录和注册页面
@@ -42,19 +44,26 @@ class AppRouter {
         return null; // 允许访问其他页面
       }
       
-      // 如果未认证且不在认证相关页面，跳转到登录页
+      // 如果从启动页完成加载，且未认证，进入初始化页面
+      if (!isAuthenticated && state.matchedLocation == AppRoutes.splash) {
+        return AppRoutes.initialization;
+      }
+      
+      // 如果未认证且不在认证相关页面或初始化页面，跳转到初始化页面
       if (!isAuthenticated && 
           !state.matchedLocation.startsWith('/login') && 
           !state.matchedLocation.startsWith('/register') &&
-          state.matchedLocation != AppRoutes.splash) {
-        return AppRoutes.login;
+          state.matchedLocation != AppRoutes.splash &&
+          state.matchedLocation != AppRoutes.initialization) {
+        return AppRoutes.initialization;
       }
       
-      // 如果已认证且在认证相关页面，跳转到仪表板
+      // 如果已认证且在认证相关页面或初始化页面，跳转到仪表板
       if (isAuthenticated && 
           (state.matchedLocation.startsWith('/login') || 
            state.matchedLocation.startsWith('/register') ||
-           state.matchedLocation == AppRoutes.splash)) {
+           state.matchedLocation == AppRoutes.splash ||
+           state.matchedLocation == AppRoutes.initialization)) {
         return AppRoutes.dashboard;
       }
       
@@ -66,6 +75,13 @@ class AppRouter {
         path: AppRoutes.splash,
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
+      ),
+      
+      // 初始化页面
+      GoRoute(
+        path: AppRoutes.initialization,
+        name: 'initialization',
+        builder: (context, state) => const InitializationScreen(),
       ),
       
       // 认证相关
