@@ -1,4 +1,4 @@
-class AppConstants {
+﻿class AppConstants {
   // API配置
   static const String baseUrl = 'http://localhost:8080';
   static const String apiVersion = '/api/v1';

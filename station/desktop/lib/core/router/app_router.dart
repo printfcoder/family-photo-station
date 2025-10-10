@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
+import 'package:family_photo_desktop/core/controllers/network_controller.dart';
 import 'package:family_photo_desktop/features/splash/splash_screen.dart';
 import 'package:family_photo_desktop/features/initialization/initialization_screen.dart';
 import 'package:family_photo_desktop/features/auth/login_screen.dart';
@@ -24,6 +25,16 @@ class AppRouter {
       final isLoading = authController.status == AuthStatus.loading || 
                        authController.status == AuthStatus.initial;
       final isOffline = authController.status == AuthStatus.offline;
+      
+      // 页面切换时清除错误消息
+      try {
+        final networkController = Get.find<NetworkController>();
+        if (networkController.errorMessage.isNotEmpty) {
+          networkController.resetConnectionStatus();
+        }
+      } catch (_) {
+        // 如果控制器尚未初始化，则忽略
+      }
       
       // 如果正在加载，显示启动页
       if (isLoading) {

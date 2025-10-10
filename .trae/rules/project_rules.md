@@ -7,3 +7,5 @@
 ## For the golang projects, format the imports with different vender group.
 
 ## For all projects, English is the default language for comments.
+
+## Don't use StatefulWidget for flutter project by default, use Getx for the state management.

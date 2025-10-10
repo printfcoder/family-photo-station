@@ -1,18 +1,18 @@
-import 'package:get/get.dart';
+﻿import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
 import 'package:family_photo_desktop/core/models/photo.dart';
 
 class PhotoController extends GetxController {
   final ApiClient _apiClient = ApiClient.instance;
   
-  // 照片列表状态
+  // Photo list state
   final RxList<Photo> _photos = <Photo>[].obs;
   final RxBool _isLoading = false.obs;
   final RxnString _error = RxnString();
   final RxInt _currentPage = 1.obs;
   final RxBool _hasMore = true.obs;
 
-  // 搜索和过滤状态
+  // Search and filter state
   final RxnString _searchQuery = RxnString();
   final RxnString _selectedAlbumId = RxnString();
   final RxnString _selectedTagId = RxnString();
@@ -35,7 +35,7 @@ class PhotoController extends GetxController {
     loadPhotos();
   }
 
-  // 加载照片列表
+  // Load photo list
   Future<void> loadPhotos({bool refresh = false}) async {
     if (refresh) {
       _currentPage.value = 1;
@@ -73,42 +73,42 @@ class PhotoController extends GetxController {
     }
   }
 
-  // 刷新照片列表
+  // Refresh photo list
   @override
   Future<void> refresh() async {
     await loadPhotos(refresh: true);
   }
 
-  // 加载更多照片
+  // Load more photos
   Future<void> loadMore() async {
     await loadPhotos();
   }
 
-  // 搜索照片
+  // Search photos
   Future<void> searchPhotos(String query) async {
     _searchQuery.value = query.isEmpty ? null : query;
     await loadPhotos(refresh: true);
   }
 
-  // 按相册过滤
+  // Filter by album
   Future<void> filterByAlbum(String? albumId) async {
     _selectedAlbumId.value = albumId;
     await loadPhotos(refresh: true);
   }
 
-  // 按标签过滤
+  // Filter by tags
   Future<void> filterByTag(String? tagId) async {
     _selectedTagId.value = tagId;
     await loadPhotos(refresh: true);
   }
 
-  // 按人物过滤
+  // Filter by people
   Future<void> filterByPerson(String? personId) async {
     _selectedPersonId.value = personId;
     await loadPhotos(refresh: true);
   }
 
-  // 清除所有过滤条件
+  // Clear all filters
   Future<void> clearFilters() async {
     _searchQuery.value = null;
     _selectedAlbumId.value = null;
@@ -117,7 +117,7 @@ class PhotoController extends GetxController {
     await loadPhotos(refresh: true);
   }
 
-  // 根据ID获取照片
+  // Get photo by ID
   Photo? getPhotoById(String photoId) {
     try {
       return _photos.firstWhere((photo) => photo.id == photoId);
@@ -126,13 +126,13 @@ class PhotoController extends GetxController {
     }
   }
 
-  // 获取照片详情
+  // Get photo details
   Future<Photo?> getPhotoDetail(String photoId) async {
     try {
       _isLoading.value = true;
       final photo = await _apiClient.api.getPhotoDetail(photoId);
       
-      // 更新本地列表中的照片信息
+      // Update photo info in local list
       final index = _photos.indexWhere((p) => p.id == photoId);
       if (index != -1) {
         _photos[index] = photo;
@@ -147,13 +147,13 @@ class PhotoController extends GetxController {
     }
   }
 
-  // 删除照片
+  // Delete photo
   Future<bool> deletePhoto(String photoId) async {
     try {
       _isLoading.value = true;
       await _apiClient.api.deletePhoto(photoId);
       
-      // 从本地列表中移除
+      // Remove from local list
       _photos.removeWhere((photo) => photo.id == photoId);
       
       return true;
@@ -171,7 +171,7 @@ class PhotoController extends GetxController {
       _isLoading.value = true;
       final updatedPhoto = await _apiClient.api.updatePhoto(photoId, data);
       
-      // 更新本地列表中的照片信息
+      // Update photo info in local list
       final index = _photos.indexWhere((p) => p.id == photoId);
       if (index != -1) {
         _photos[index] = updatedPhoto;
@@ -196,7 +196,7 @@ class PhotoController extends GetxController {
         await _apiClient.api.deletePhoto(photoId);
       }
       
-      // 从本地列表中移除
+      // Remove from local list
       _photos.removeWhere((photo) => photoIds.contains(photo.id));
       
       return true;
@@ -259,7 +259,7 @@ class PhotoController extends GetxController {
     _photos.assignAll(filteredPhotos);
   }
 
-  // 按标签过滤
+  // Filter by tags
   Future<void> filterByTags(List<String> tags) async {
     if (tags.isEmpty) {
       // 过滤未标记的照片

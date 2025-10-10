@@ -1,4 +1,4 @@
-// API请求和响应模型
+﻿// API请求和响应模型
 // 这些模型用于与API通信，与protobuf生成的模型分离
 
 import 'package:fixnum/fixnum.dart';

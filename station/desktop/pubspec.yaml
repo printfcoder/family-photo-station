@@ -38,6 +38,7 @@ dependencies:
   photo_manager: ^3.5.0
   cached_network_image: ^3.4.1
   image: ^4.2.0
+  flutter_svg: ^2.0.10+1
   
   # 路由导航
   go_router: ^14.6.1

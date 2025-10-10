@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+﻿import 'package:get/get.dart';
 import 'package:dio/dio.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 
@@ -71,7 +71,7 @@ class NetworkController extends GetxController {
     }
   }
 
-  // 监听网络错误
+  // Listen for network errors
   void handleNetworkError(dynamic error) {
     if (error is DioException) {
       String errorMsg = '';
@@ -128,13 +128,13 @@ class NetworkController extends GetxController {
     }
   }
 
-  // 更新后端地址
+  // Update backend address
   void updateBaseUrl(String newBaseUrl) {
     _dio.options.baseUrl = newBaseUrl;
-    checkConnection(); // 立即检查新地址的连接状态
+    checkConnection(); // Immediately check connection status for new address
   }
 
-  // 重置连接状态
+  // Reset connection status
   void resetConnectionStatus() {
     _setConnectionStatus(true, '');
   }

@@ -1,4 +1,4 @@
-// User enums for sorting and filtering
+﻿// User enums for sorting and filtering
 enum UserSortBy { 
   newest, 
   oldest, 

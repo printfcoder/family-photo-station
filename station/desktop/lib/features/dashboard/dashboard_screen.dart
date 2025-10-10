@@ -1,82 +1,60 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:go_router/go_router.dart';
-import 'package:family_photo_desktop/core/constants/app_constants.dart';
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
+import 'dashboard_controller.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends StatelessWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends State<DashboardScreen> {
-  int _selectedIndex = 0;
-  final _authController = Get.find<AuthController>();
-
-  final List<NavigationRailDestination> _destinations = [
-    const NavigationRailDestination(
-      icon: Icon(Icons.dashboard_outlined),
-      selectedIcon: Icon(Icons.dashboard),
-      label: Text('仪表板'),
-    ),
-    const NavigationRailDestination(
-      icon: Icon(Icons.photo_library_outlined),
-      selectedIcon: Icon(Icons.photo_library),
-      label: Text('照片'),
-    ),
-    const NavigationRailDestination(
-      icon: Icon(Icons.photo_album_outlined),
-      selectedIcon: Icon(Icons.photo_album),
-      label: Text('相册'),
-    ),
-    const NavigationRailDestination(
-      icon: Icon(Icons.people_outline),
-      selectedIcon: Icon(Icons.people),
-      label: Text('用户'),
-    ),
-    const NavigationRailDestination(
-      icon: Icon(Icons.settings_outlined),
-      selectedIcon: Icon(Icons.settings),
-      label: Text('设置'),
-    ),
-  ];
-
-  final List<String> _routes = [
-    AppRoutes.dashboard,
-    AppRoutes.photos,
-    AppRoutes.albums,
-    AppRoutes.users,
-    AppRoutes.settings,
-  ];
-
-  void _onDestinationSelected(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-    context.go(_routes[index]);
-  }
-
-  @override
   Widget build(BuildContext context) {
+    final controller = Get.put(DashboardController());
+    
+    final List<NavigationRailDestination> destinations = [
+      const NavigationRailDestination(
+        icon: Icon(Icons.dashboard_outlined),
+        selectedIcon: Icon(Icons.dashboard),
+        label: Text('仪表板'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.photo_library_outlined),
+        selectedIcon: Icon(Icons.photo_library),
+        label: Text('照片'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.photo_album_outlined),
+        selectedIcon: Icon(Icons.photo_album),
+        label: Text('相册'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.people_outline),
+        selectedIcon: Icon(Icons.people),
+        label: Text('用户'),
+      ),
+      const NavigationRailDestination(
+        icon: Icon(Icons.settings_outlined),
+        selectedIcon: Icon(Icons.settings),
+        label: Text('设置'),
+      ),
+    ];
+
     return Scaffold(
       body: Column(
         children: [
-          // 主要内容
+          // Main content
           Expanded(
             child: Row(
               children: [
-                // 侧边导航栏
-                NavigationRail(
-                  selectedIndex: _selectedIndex,
-                  onDestinationSelected: _onDestinationSelected,
+                // Sidebar navigation
+                Obx(() => NavigationRail(
+                  selectedIndex: controller.selectedIndex,
+                  onDestinationSelected: controller.onDestinationSelected,
                   labelType: NavigationRailLabelType.all,
-                  destinations: _destinations,
+                  destinations: destinations,
                   leading: Column(
                     children: [
                       const SizedBox(height: 16),
-                      // 应用图标
+                      // App icon
                       Container(
                         width: 48,
                         height: 48,
@@ -101,14 +79,14 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Column(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            // 用户头像
+                            // User avatar
                             Obx(() => CircleAvatar(
                               radius: 20,
                               backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
-                              child: _authController.user?.avatar != null
+                              child: controller.authController.user?.avatar != null
                                   ? ClipOval(
                                       child: Image.network(
-                                        _authController.user!.avatar!,
+                                        controller.authController.user!.avatar!,
                                         width: 40,
                                         height: 40,
                                         fit: BoxFit.cover,
@@ -126,15 +104,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                             )),
                             const SizedBox(height: 8),
-                            // 登出按钮
+                            // Logout button
                             IconButton(
                               icon: const Icon(Icons.logout),
-                              onPressed: () async {
-                                await _authController.logout();
-                                if (mounted) {
-                                  context.go(AppRoutes.login);
-                                }
-                              },
+                              onPressed: controller.logout,
                               tooltip: '登出',
                             ),
                           ],
@@ -142,13 +115,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
                     ),
                   ),
-                ),
+                )),
                 
                 const VerticalDivider(thickness: 1, width: 1),
                 
-                // 主内容区域
+                // Main content area
                 Expanded(
-                  child: _buildMainContent(),
+                  child: _buildMainContent(context, controller),
                 ),
               ],
             ),
@@ -158,13 +131,13 @@ class _DashboardScreenState extends State<DashboardScreen> {
     );
   }
 
-  Widget _buildMainContent() {
+  Widget _buildMainContent(BuildContext context, DashboardController controller) {
     return Container(
       padding: const EdgeInsets.all(24),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // 页面标题和用户信息
+          // Page title and user info
           Row(
             children: [
               Expanded(
@@ -179,7 +152,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     ),
                     const SizedBox(height: 4),
                     Obx(() => Text(
-                      '欢迎回来，${_authController.user?.displayName ?? _authController.user?.username ?? '用户'}',
+                      '欢迎回来，${controller.authController.user?.displayName ?? controller.authController.user?.username ?? '用户'}',
                       style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
                       ),
@@ -187,11 +160,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   ],
                 ),
               ),
-              // 快速操作按钮
+              // Quick action buttons
               ElevatedButton.icon(
-                onPressed: () {
-                  // TODO: 实现快速上传功能
-                },
+                onPressed: controller.onUploadPhotos,
                 icon: const Icon(Icons.upload),
                 label: const Text('上传照片'),
               ),
@@ -200,83 +171,145 @@ class _DashboardScreenState extends State<DashboardScreen> {
           
           const SizedBox(height: 32),
           
-          // 统计卡片
+          // Statistics cards - warm card layout
           Expanded(
             child: GridView.count(
               crossAxisCount: 4,
-              crossAxisSpacing: 16,
-              mainAxisSpacing: 16,
-              childAspectRatio: 1.5,
+              crossAxisSpacing: 20,
+              mainAxisSpacing: 20,
+              childAspectRatio: 1.3,
               children: [
+                Obx(() => _buildStatCard(
+                  context: context,
+                  title: '珍贵回忆',
+                  value: '${controller.authController.userStats?.photoCount ?? 0}',
+                  icon: Icons.photo_library_rounded,
+                  color: const Color(0xFFFF8A65),
+                  subtitle: '张照片',
+                )),
+                Obx(() => _buildStatCard(
+                  context: context,
+                  title: '美好时光',
+                  value: '${controller.authController.userStats?.albumCount ?? 0}',
+                  icon: Icons.photo_album_rounded,
+                  color: const Color(0xFF81C784).withValues(alpha: 0.15),
+                  subtitle: '个相册',
+                )),
                 _buildStatCard(
-                  title: '照片总数',
-                  value: '${_authController.userStats?.photoCount ?? 0}',
-                  icon: Icons.photo_library,
-                  color: Colors.blue,
+                  context: context,
+                  title: '温馨标签',
+                  value: '0',
+                  icon: Icons.label_rounded,
+                  color: const Color(0xFF64B5F6),
+                  subtitle: '个标签',
                 ),
-                _buildStatCard(
-                  title: '相册数量',
-                  value: '${_authController.userStats?.albumCount ?? 0}',
-                  icon: Icons.photo_album,
-                  color: Colors.green,
-                ),
-                _buildStatCard(
-                  title: '标签数量',
-                  value: '0', // tagCount not available in UserStats
-                  icon: Icons.label,
-                  color: Colors.orange,
-                ),
-                _buildStatCard(
-                  title: '分享数量',
-                  value: _authController.userStats?.totalStorageUsed != null 
-                    ? '${(_authController.userStats!.totalStorageUsed.toDouble() / (1024 * 1024 * 1024)).toStringAsFixed(1)}%'
-                    : '0%',
-                  icon: Icons.share,
-                  color: Colors.purple,
-                ),
+                Obx(() => _buildStatCard(
+                  context: context,
+                  title: '分享快乐',
+                  value: controller.authController.userStats?.totalStorageUsed != null 
+                    ? '${(controller.authController.userStats!.totalStorageUsed.toDouble() / (1024 * 1024 * 1024)).toStringAsFixed(1)}'
+                    : '0',
+                  icon: Icons.favorite_rounded,
+                  color: const Color(0xFFFFB74D),
+                  subtitle: 'GB 已用',
+                )),
               ],
             ),
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: 32),
           
-          // 存储使用情况
-          Card(
+          // Storage usage - warm card design
+          Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xFFFFF3E0),
+                  const Color(0xFFFFE0B2),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFFFF8A65).withOpacity(0.2),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
             child: Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    '存储使用情况',
-                    style: Theme.of(context).textTheme.titleLarge,
+                  Row(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFFF8A65).withOpacity(0.2),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Icon(
+                          Icons.cloud_rounded,
+                          color: Color(0xFFFF8A65),
+                          size: 24,
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Text(
+                        '家庭云存储',
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          color: const Color(0xFF5D4037),
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
                   Obx(() {
-                    final stats = _authController.userStats;
+                    final stats = controller.authController.userStats;
                     final usage = stats?.totalStorageUsed != null 
                       ? (stats!.totalStorageUsed.toDouble() / (10 * 1024 * 1024 * 1024)) // Assume 10GB limit
                       : 0.0;
                     return Column(
                       children: [
-                        LinearProgressIndicator(
-                          value: usage,
-                          backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-                          valueColor: AlwaysStoppedAnimation<Color>(
-                            usage > 0.8 ? Colors.red : Theme.of(context).colorScheme.primary,
+                        Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(4),
+                            color: Colors.white.withOpacity(0.3),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: usage,
+                              backgroundColor: Colors.transparent,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                usage > 0.8 ? const Color(0xFFEF5350) : const Color(0xFF81C784).withValues(alpha: 0.15),
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: 12),
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              '已使用: ${stats?.totalStorageUsed != null ? _formatBytes(stats!.totalStorageUsed.toInt()) : '0 B'}',
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              '已使用: ${stats?.totalStorageUsed != null ? controller.formatBytes(stats!.totalStorageUsed.toInt()) : '0 B'}',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF6D4C41),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                             Text(
-                              '总容量: 无限制',
-                              style: Theme.of(context).textTheme.bodyMedium,
+                              '无限容量 ∞',
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                color: const Color(0xFF6D4C41),
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
                           ],
                         ),
@@ -293,35 +326,77 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildStatCard({
+    required BuildContext context,
     required String title,
     required String value,
     required IconData icon,
     required Color color,
+    String? subtitle,
   }) {
-    return Card(
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white,
+            color.withOpacity(0.05),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.15),
+            blurRadius: 12,
+            offset: const Offset(0, 6),
+          ),
+        ],
+        border: Border.all(
+          color: color.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(20),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(
-              icon,
-              size: 32,
-              color: color,
-            ),
-            const SizedBox(height: 8),
-            Text(
-              value,
-              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(
+                icon,
+                size: 28,
                 color: color,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: 12),
+            Text(
+              value,
+              style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                fontWeight: FontWeight.bold,
+                color: const Color(0xFF5D4037),
+              ),
+            ),
+            if (subtitle != null) ...[
+              const SizedBox(height: 2),
+              Text(
+                subtitle,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: const Color(0xFF8D6E63),
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+            const SizedBox(height: 8),
             Text(
               title,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.6),
+                color: const Color(0xFF6D4C41),
+                fontWeight: FontWeight.w600,
               ),
               textAlign: TextAlign.center,
             ),
@@ -329,17 +404,5 @@ class _DashboardScreenState extends State<DashboardScreen> {
         ),
       ),
     );
-  }
-
-  String _formatBytes(int bytes) {
-    if (bytes <= 0) return '0 B';
-    const suffixes = ['B', 'KB', 'MB', 'GB', 'TB'];
-    int i = 0;
-    double size = bytes.toDouble();
-    while (size >= 1024 && i < suffixes.length - 1) {
-      size /= 1024;
-      i++;
-    }
-    return '${size.toStringAsFixed(1)} ${suffixes[i]}';
   }
 }

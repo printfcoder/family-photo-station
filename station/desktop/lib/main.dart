@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:dio/dio.dart';
@@ -6,6 +6,7 @@ import 'package:window_manager/window_manager.dart';
 
 import 'package:family_photo_desktop/core/controllers/auth_controller.dart';
 import 'package:family_photo_desktop/core/controllers/photo_controller.dart';
+import 'package:family_photo_desktop/core/controllers/photos_page_controller.dart';
 import 'package:family_photo_desktop/core/controllers/album_controller.dart';
 import 'package:family_photo_desktop/core/controllers/user_controller.dart';
 import 'package:family_photo_desktop/core/controllers/network_controller.dart';
@@ -46,7 +47,8 @@ void main() async {
   final dio = Dio();
   Get.put(ApiService(dio));
   Get.put(AuthController());
-  Get.put(PhotoController());
+  Get.put(PhotoController()); // Core PhotoController
+  Get.put(PhotosPageController()); // Features PhotosPageController
   Get.put(AlbumController());
   Get.put(UserController());
   Get.put(NetworkController());

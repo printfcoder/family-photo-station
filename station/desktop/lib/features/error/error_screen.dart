@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
 
@@ -26,7 +26,7 @@ class ErrorScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 错误图标
+              // Error icon
               Icon(
                 Icons.error_outline,
                 size: 120,
@@ -35,7 +35,7 @@ class ErrorScreen extends StatelessWidget {
               
               const SizedBox(height: 32),
               
-              // 错误标题
+              // Error title
               Text(
                 '出现了一些问题',
                 style: Theme.of(context).textTheme.headlineMedium?.copyWith(
@@ -46,7 +46,7 @@ class ErrorScreen extends StatelessWidget {
               
               const SizedBox(height: 16),
               
-              // 错误描述
+              // Error description
               Text(
                 '很抱歉，应用程序遇到了一个错误。请尝试以下解决方案：',
                 style: Theme.of(context).textTheme.bodyLarge?.copyWith(
@@ -57,7 +57,7 @@ class ErrorScreen extends StatelessWidget {
               
               const SizedBox(height: 32),
               
-              // 错误详情卡片
+              // Error details card
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -102,7 +102,7 @@ class ErrorScreen extends StatelessWidget {
               
               const SizedBox(height: 32),
               
-              // 解决方案建议
+              // Solution suggestions
               Card(
                 child: Padding(
                   padding: const EdgeInsets.all(16),
@@ -154,13 +154,13 @@ class ErrorScreen extends StatelessWidget {
               
               const SizedBox(height: 32),
               
-              // 操作按钮
+              // Action buttons
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   OutlinedButton.icon(
                     onPressed: () {
-                      // 重新加载当前页面
+                      // Reload current page
                       context.go(GoRouterState.of(context).uri.path);
                     },
                     icon: const Icon(Icons.refresh),

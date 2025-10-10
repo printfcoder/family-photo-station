@@ -1,4 +1,4 @@
-import 'package:shared_preferences/shared_preferences.dart';
+﻿import 'package:shared_preferences/shared_preferences.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'dart:convert';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
@@ -25,8 +25,8 @@ class StorageService {
     _prefs = await SharedPreferences.getInstance();
     await Hive.initFlutter();
     
-    // 简化Hive初始化，不再使用适配器
-    // 打开Hive boxes
+    // Simplified Hive initialization, no longer using adapters
+    // Open Hive boxes
     _userBox = await Hive.openBox('userBox');
     _settingsBox = await Hive.openBox('settingsBox');
     _cacheBox = await Hive.openBox('cacheBox');
@@ -37,7 +37,7 @@ class StorageService {
     // No longer need to register adapters
   }
 
-  // Token管理
+  // Token management
   Future<void> saveTokens(String accessToken, String refreshToken) async {
     await _prefs?.setString(AppConstants.accessTokenKey, accessToken);
     await _prefs?.setString(AppConstants.refreshTokenKey, refreshToken);
@@ -56,7 +56,7 @@ class StorageService {
     await _prefs?.remove(AppConstants.refreshTokenKey);
   }
 
-  // 用户信息管理 - Simplified without Hive and JSON serialization
+  // User info management - Simplified without Hive and JSON serialization
   Future<void> saveUser(User user) async {
     // Store user data as JSON string in SharedPreferences
     final userJson = jsonEncode({
@@ -104,7 +104,7 @@ class StorageService {
     await _prefs?.remove(AppConstants.userInfoKey);
   }
 
-  // 主题设置
+  // Theme settings
   Future<void> saveThemeMode(String themeMode) async {
     await _settingsBox?.put(AppConstants.themeKey, themeMode);
   }
@@ -113,7 +113,7 @@ class StorageService {
     return _settingsBox?.get(AppConstants.themeKey) as String?;
   }
 
-  // 语言设置
+  // Language settings
   Future<void> saveLanguage(String language) async {
     await _settingsBox?.put(AppConstants.languageKey, language);
   }
@@ -122,7 +122,7 @@ class StorageService {
     return _settingsBox?.get(AppConstants.languageKey) as String?;
   }
 
-  // 缓存管理
+  // Cache management
   Future<void> saveCache(String key, dynamic value, {Duration? expiry}) async {
     final cacheData = {
       'value': value,
@@ -139,7 +139,7 @@ class StorageService {
     final timestamp = cacheData['timestamp'] as int;
     final expiry = cacheData['expiry'] as int?;
 
-    // 检查是否过期
+    // Check if expired
     if (expiry != null) {
       final expiryTime = DateTime.fromMillisecondsSinceEpoch(timestamp + expiry);
       if (DateTime.now().isAfter(expiryTime)) {
@@ -159,7 +159,7 @@ class StorageService {
     }
   }
 
-  // 应用设置
+  // App settings
   Future<void> saveSetting(String key, dynamic value) async {
     await _settingsBox?.put(key, value);
   }
@@ -172,7 +172,7 @@ class StorageService {
     await _settingsBox?.delete(key);
   }
 
-  // 批量操作
+  // Batch operations
   Future<void> saveMultiple(Map<String, dynamic> data) async {
     for (final entry in data.entries) {
       await _prefs?.setString(entry.key, entry.value.toString());
@@ -187,7 +187,7 @@ class StorageService {
     return result;
   }
 
-  // 清理所有数据
+  // Clear all data
   Future<void> clearAll() async {
     await _prefs?.clear();
     await _userBox?.clear();
@@ -195,17 +195,17 @@ class StorageService {
     await _cacheBox?.clear();
   }
 
-  // 检查是否已初始化
+  // Check if initialized
   bool get isInitialized => _prefs != null && _userBox != null;
 
-  // 检查是否已登录
+  // Check if logged in
   Future<bool> isLoggedIn() async {
     final token = await getAccessToken();
     final user = await getUser();
     return token != null && user != null;
   }
 
-  // 获取存储统计信息
+  // Get storage statistics
   Future<Map<String, dynamic>> getStorageStats() async {
     final prefsKeys = _prefs?.getKeys().length ?? 0;
     final userBoxLength = _userBox?.length ?? 0;
@@ -221,7 +221,7 @@ class StorageService {
     };
   }
 
-  // 数据导出
+  // Data export
   Future<Map<String, dynamic>> exportData() async {
     final userData = await getUser();
     final settings = _settingsBox?.toMap() ?? {};
@@ -246,10 +246,10 @@ class StorageService {
     };
   }
 
-  // 数据导入
+  // Data import
   Future<void> importData(Map<String, dynamic> data) async {
     try {
-      // 导入用户数据
+      // Import user data
       if (data['user'] != null) {
         final userData = data['user'] as Map<String, dynamic>;
         final user = User(
@@ -267,7 +267,7 @@ class StorageService {
         await saveUser(user);
       }
 
-      // 导入设置
+      // Import settings
       if (data['settings'] != null) {
         final settings = data['settings'] as Map<String, dynamic>;
         for (final entry in settings.entries) {
@@ -275,7 +275,7 @@ class StorageService {
         }
       }
 
-      // 导入缓存（可选）
+      // Import cache (optional)
       if (data['cache'] != null) {
         final cache = data['cache'] as Map<String, dynamic>;
         for (final entry in cache.entries) {
@@ -287,17 +287,17 @@ class StorageService {
     }
   }
 
-  // 数据备份
+  // Data backup
   Future<void> backup() async {
     // TODO: 实现数据备份逻辑
   }
 
-  // 数据恢复
+  // Data restore
   Future<void> restore() async {
     // TODO: 实现数据恢复逻辑
   }
 
-  // 关闭所有连接
+  // Close all connections
   Future<void> dispose() async {
     await _userBox?.close();
     await _settingsBox?.close();

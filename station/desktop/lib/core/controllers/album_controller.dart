@@ -1,4 +1,4 @@
-import 'package:get/get.dart';
+﻿import 'package:get/get.dart';
 import 'package:family_photo_desktop/core/services/api_service.dart';
 import 'package:family_photo_desktop/core/models/album.pb.dart' as pb;
 import 'package:fixnum/fixnum.dart';
@@ -163,7 +163,7 @@ class AlbumController extends GetxController {
 
       await _apiClient.api.deleteAlbum(albumId);
       
-      // 从本地列表中移除
+      // Remove from local list
       _albums.removeWhere((pb.Album album) => album.id == albumId);
       
       return true;

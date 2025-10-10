@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:go_router/go_router.dart';
 import 'package:family_photo_desktop/core/constants/app_constants.dart';
@@ -76,7 +76,7 @@ class _AppSidebarState extends State<AppSidebar> {
       leading: Column(
         children: [
           const SizedBox(height: 16),
-          // 应用图标
+          // App icon
           Container(
             width: 48,
             height: 48,
@@ -101,7 +101,7 @@ class _AppSidebarState extends State<AppSidebar> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // 用户头像
+                // User avatar
                 Obx(() => CircleAvatar(
                   radius: 20,
                   backgroundColor: Theme.of(context).colorScheme.primary.withValues(alpha: 0.1),
@@ -126,7 +126,7 @@ class _AppSidebarState extends State<AppSidebar> {
                         ),
                 )),
                 const SizedBox(height: 8),
-                // 登出按钮
+                // Logout button
                 IconButton(
                   icon: const Icon(Icons.logout),
                   onPressed: () async {
