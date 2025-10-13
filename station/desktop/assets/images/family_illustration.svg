@@ -1,0 +1,211 @@
+<svg width="400" height="300" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- 背景 -->
+  <rect width="400" height="300" fill="#f8f9fa"/>
+  
+  <!-- 云朵 -->
+  <g opacity="0.6">
+    <ellipse cx="80" cy="40" rx="25" ry="15" fill="#e3f2fd"/>
+    <ellipse cx="95" cy="35" rx="20" ry="12" fill="#e3f2fd"/>
+    <ellipse cx="110" cy="40" rx="18" ry="10" fill="#e3f2fd"/>
+    
+    <ellipse cx="320" cy="50" rx="30" ry="18" fill="#e8f5e8"/>
+    <ellipse cx="340" cy="45" rx="25" ry="15" fill="#e8f5e8"/>
+    <ellipse cx="360" cy="50" rx="20" ry="12" fill="#e8f5e8"/>
+  </g>
+  
+  <!-- 房子 -->
+  <g transform="translate(150, 120)">
+    <!-- 房子主体 -->
+    <rect x="0" y="40" width="100" height="80" fill="#fff3e0" stroke="#ffb74d" stroke-width="2"/>
+    
+    <!-- 屋顶 -->
+    <polygon points="50,0 0,40 100,40" fill="#ff8a65"/>
+    
+    <!-- 门 -->
+    <rect x="35" y="80" width="30" height="40" fill="#8d6e63" rx="15"/>
+    <circle cx="60" cy="100" r="2" fill="#ffb74d"/>
+    
+    <!-- 窗户 -->
+    <rect x="15" y="60" width="20" height="15" fill="#81c784" stroke="#4caf50" stroke-width="1"/>
+    <line x1="25" y1="60" x2="25" y2="75" stroke="#4caf50" stroke-width="1"/>
+    <line x1="15" y1="67.5" x2="35" y2="67.5" stroke="#4caf50" stroke-width="1"/>
+    
+    <rect x="65" y="60" width="20" height="15" fill="#81c784" stroke="#4caf50" stroke-width="1"/>
+    <line x1="75" y1="60" x2="75" y2="75" stroke="#4caf50" stroke-width="1"/>
+    <line x1="65" y1="67.5" x2="85" y2="67.5" stroke="#4caf50" stroke-width="1"/>
+    
+    <!-- 烟囱 -->
+    <rect x="75" y="15" width="8" height="25" fill="#8d6e63"/>
+    
+    <!-- 烟雾 -->
+    <g opacity="0.7">
+      <circle cx="79" cy="10" r="3" fill="#e0e0e0"/>
+      <circle cx="82" cy="5" r="2.5" fill="#e0e0e0"/>
+      <circle cx="85" cy="2" r="2" fill="#e0e0e0"/>
+    </g>
+  </g>
+  
+  <!-- 家庭成员 -->
+  <!-- 爸爸 -->
+  <g transform="translate(100, 180)">
+    <!-- 身体 -->
+    <ellipse cx="0" cy="20" rx="12" ry="25" fill="#2196f3"/>
+    <!-- 头 -->
+    <circle cx="0" cy="-5" r="12" fill="#ffdbcb"/>
+    <!-- 头发 -->
+    <path d="M -10,-12 Q 0,-18 10,-12 Q 8,-15 0,-15 Q -8,-15 -10,-12" fill="#8d6e63"/>
+    <!-- 眼睛 -->
+    <circle cx="-4" cy="-8" r="1.5" fill="#333"/>
+    <circle cx="4" cy="-8" r="1.5" fill="#333"/>
+    <!-- 嘴巴 -->
+    <path d="M -3,-2 Q 0,1 3,-2" stroke="#333" stroke-width="1" fill="none"/>
+    <!-- 手臂 -->
+    <ellipse cx="-15" cy="10" rx="4" ry="15" fill="#ffdbcb" transform="rotate(-20)"/>
+    <ellipse cx="15" cy="10" rx="4" ry="15" fill="#ffdbcb" transform="rotate(20)"/>
+    <!-- 腿 -->
+    <ellipse cx="-6" cy="50" rx="4" ry="20" fill="#333"/>
+    <ellipse cx="6" cy="50" rx="4" ry="20" fill="#333"/>
+  </g>
+  
+  <!-- 妈妈 -->
+  <g transform="translate(140, 185)">
+    <!-- 身体 -->
+    <ellipse cx="0" cy="15" rx="10" ry="20" fill="#e91e63"/>
+    <!-- 头 -->
+    <circle cx="0" cy="-5" r="10" fill="#ffdbcb"/>
+    <!-- 头发 -->
+    <path d="M -8,-12 Q 0,-16 8,-12 Q 6,-14 0,-14 Q -6,-14 -8,-12" fill="#6d4c41"/>
+    <!-- 眼睛 -->
+    <circle cx="-3" cy="-8" r="1.5" fill="#333"/>
+    <circle cx="3" cy="-8" r="1.5" fill="#333"/>
+    <!-- 嘴巴 -->
+    <path d="M -2,-2 Q 0,1 2,-2" stroke="#333" stroke-width="1" fill="none"/>
+    <!-- 手臂 -->
+    <ellipse cx="-12" cy="8" rx="3" ry="12" fill="#ffdbcb" transform="rotate(-15)"/>
+    <ellipse cx="12" cy="8" rx="3" ry="12" fill="#ffdbcb" transform="rotate(15)"/>
+    <!-- 腿 -->
+    <ellipse cx="-5" cy="40" rx="3" ry="15" fill="#333"/>
+    <ellipse cx="5" cy="40" rx="3" ry="15" fill="#333"/>
+  </g>
+  
+  <!-- 孩子1 -->
+  <g transform="translate(180, 195)">
+    <!-- 身体 -->
+    <ellipse cx="0" cy="10" rx="8" ry="15" fill="#4caf50"/>
+    <!-- 头 -->
+    <circle cx="0" cy="-3" r="8" fill="#ffdbcb"/>
+    <!-- 头发 -->
+    <path d="M -6,-8 Q 0,-12 6,-8 Q 4,-10 0,-10 Q -4,-10 -6,-8" fill="#8d6e63"/>
+    <!-- 眼睛 -->
+    <circle cx="-2.5" cy="-6" r="1" fill="#333"/>
+    <circle cx="2.5" cy="-6" r="1" fill="#333"/>
+    <!-- 嘴巴 -->
+    <circle cx="0" cy="-1" r="1.5" fill="none" stroke="#333" stroke-width="0.5"/>
+    <!-- 手臂 -->
+    <ellipse cx="-10" cy="5" rx="2.5" ry="10" fill="#ffdbcb" transform="rotate(-10)"/>
+    <ellipse cx="10" cy="5" rx="2.5" ry="10" fill="#ffdbcb" transform="rotate(10)"/>
+    <!-- 腿 -->
+    <ellipse cx="-4" cy="30" rx="2.5" ry="12" fill="#333"/>
+    <ellipse cx="4" cy="30" rx="2.5" ry="12" fill="#333"/>
+  </g>
+  
+  <!-- 孩子2 -->
+  <g transform="translate(220, 200)">
+    <!-- 身体 -->
+    <ellipse cx="0" cy="8" rx="7" ry="12" fill="#ff9800"/>
+    <!-- 头 -->
+    <circle cx="0" cy="-2" r="7" fill="#ffdbcb"/>
+    <!-- 头发 -->
+    <path d="M -5,-7 Q 0,-10 5,-7 Q 3,-9 0,-9 Q -3,-9 -5,-7" fill="#6d4c41"/>
+    <!-- 眼睛 -->
+    <circle cx="-2" cy="-5" r="1" fill="#333"/>
+    <circle cx="2" cy="-5" r="1" fill="#333"/>
+    <!-- 嘴巴 -->
+    <path d="M -1.5,0 Q 0,2 1.5,0" stroke="#333" stroke-width="0.5" fill="none"/>
+    <!-- 手臂 -->
+    <ellipse cx="-8" cy="3" rx="2" ry="8" fill="#ffdbcb" transform="rotate(-5)"/>
+    <ellipse cx="8" cy="3" rx="2" ry="8" fill="#ffdbcb" transform="rotate(5)"/>
+    <!-- 腿 -->
+    <ellipse cx="-3" cy="25" rx="2" ry="10" fill="#333"/>
+    <ellipse cx="3" cy="25" rx="2" ry="10" fill="#333"/>
+  </g>
+  
+  <!-- 宠物狗 -->
+  <g transform="translate(260, 220)">
+    <!-- 身体 -->
+    <ellipse cx="0" cy="0" rx="15" ry="8" fill="#8d6e63"/>
+    <!-- 头 -->
+    <ellipse cx="-12" cy="-5" rx="8" ry="6" fill="#8d6e63"/>
+    <!-- 耳朵 -->
+    <ellipse cx="-18" cy="-8" rx="3" ry="6" fill="#6d4c41"/>
+    <ellipse cx="-15" cy="-10" rx="2.5" ry="5" fill="#6d4c41"/>
+    <!-- 眼睛 -->
+    <circle cx="-15" cy="-7" r="1.5" fill="#333"/>
+    <circle cx="-9" cy="-7" r="1.5" fill="#333"/>
+    <!-- 鼻子 -->
+    <circle cx="-20" cy="-3" r="1" fill="#333"/>
+    <!-- 嘴巴 -->
+    <path d="M -20,-1 Q -18,1 -16,-1" stroke="#333" stroke-width="0.5" fill="none"/>
+    <!-- 尾巴 -->
+    <path d="M 15,0 Q 25,-5 20,-15" stroke="#8d6e63" stroke-width="4" fill="none"/>
+    <!-- 腿 -->
+    <ellipse cx="-8" cy="8" rx="2" ry="6" fill="#6d4c41"/>
+    <ellipse cx="-2" cy="8" rx="2" ry="6" fill="#6d4c41"/>
+    <ellipse cx="4" cy="8" rx="2" ry="6" fill="#6d4c41"/>
+    <ellipse cx="10" cy="8" rx="2" ry="6" fill="#6d4c41"/>
+  </g>
+  
+  <!-- 树 -->
+  <g transform="translate(50, 160)">
+    <!-- 树干 -->
+    <rect x="-5" y="40" width="10" height="40" fill="#8d6e63"/>
+    <!-- 树叶 -->
+    <circle cx="0" cy="30" r="25" fill="#4caf50"/>
+    <circle cx="-15" cy="35" r="18" fill="#66bb6a"/>
+    <circle cx="15" cy="35" r="18" fill="#66bb6a"/>
+    <circle cx="0" cy="50" r="15" fill="#66bb6a"/>
+  </g>
+  
+  <!-- 花朵 -->
+  <g transform="translate(320, 240)">
+    <!-- 花茎 -->
+    <line x1="0" y1="0" x2="0" y2="30" stroke="#4caf50" stroke-width="2"/>
+    <!-- 花瓣 -->
+    <circle cx="-8" cy="-5" r="5" fill="#e91e63"/>
+    <circle cx="8" cy="-5" r="5" fill="#e91e63"/>
+    <circle cx="0" cy="-12" r="5" fill="#e91e63"/>
+    <circle cx="0" cy="2" r="5" fill="#e91e63"/>
+    <!-- 花心 -->
+    <circle cx="0" cy="-5" r="4" fill="#ffeb3b"/>
+  </g>
+  
+  <!-- 太阳 -->
+  <g transform="translate(350, 60)">
+    <circle cx="0" cy="0" r="20" fill="#ffeb3b" opacity="0.8"/>
+    <!-- 阳光 -->
+    <g stroke="#ffeb3b" stroke-width="2" opacity="0.6">
+      <line x1="0" y1="-30" x2="0" y2="-25"/>
+      <line x1="21" y1="-21" x2="18" y2="-18"/>
+      <line x1="30" y1="0" x2="25" y2="0"/>
+      <line x1="21" y1="21" x2="18" y2="18"/>
+      <line x1="0" y1="30" x2="0" y2="25"/>
+      <line x1="-21" y1="21" x2="-18" y2="18"/>
+      <line x1="-30" y1="0" x2="-25" y2="0"/>
+      <line x1="-21" y1="-21" x2="-18" y2="-18"/>
+    </g>
+  </g>
+  
+  <!-- 爱心 -->
+  <g transform="translate(200, 80)" opacity="0.7">
+    <path d="M 0,5 C -5,0 -10,0 -10,5 C -10,10 0,15 0,15 C 0,15 10,10 10,5 C 10,0 5,0 0,5 Z" fill="#e91e63"/>
+  </g>
+  
+  <!-- 相机图标 -->
+  <g transform="translate(30, 100)" opacity="0.6">
+    <rect x="0" y="5" width="25" height="15" rx="3" fill="#607d8b"/>
+    <rect x="2" y="0" width="8" height="5" rx="2" fill="#607d8b"/>
+    <circle cx="12.5" cy="12.5" r="6" fill="#37474f"/>
+    <circle cx="12.5" cy="12.5" r="4" fill="#263238"/>
+    <circle cx="20" cy="8" r="1.5" fill="#ff5722"/>
+  </g>
+</svg>

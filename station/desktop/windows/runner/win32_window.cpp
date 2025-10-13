@@ -16,6 +16,14 @@ namespace {
 #define DWMWA_USE_IMMERSIVE_DARK_MODE 20
 #endif
 
+#ifndef DWMWA_CAPTION_COLOR
+#define DWMWA_CAPTION_COLOR 35
+#endif
+
+#ifndef DWMWA_BORDER_COLOR
+#define DWMWA_BORDER_COLOR 34
+#endif
+
 constexpr const wchar_t kWindowClassName[] = L"FLUTTER_RUNNER_WIN32_WINDOW";
 
 /// Registry key for app theme preference.
@@ -285,4 +293,9 @@ void Win32Window::UpdateTheme(HWND const window) {
     DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE,
                           &enable_dark_mode, sizeof(enable_dark_mode));
   }
+
+  // Set custom title bar color to #FFF3E0
+  COLORREF title_bar_color = RGB(255, 243, 224); // #FFF3E0
+  DwmSetWindowAttribute(window, DWMWA_CAPTION_COLOR,
+                        &title_bar_color, sizeof(title_bar_color));
 }

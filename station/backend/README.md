@@ -1,4 +1,6 @@
-# Family Photo Station Backend
+# Family Photo Station Backend（暂时不实现）
+
+> 当前先实现纯Flutter+Dart方案，暂不实现纯Go的存储、管理方案，等Dart实现完后，再考虑实现一套Go的，方便在纯云端的方式下运行。
 
 基于 Go + Hertz + GORM 的家庭照片管理系统后端服务。
 

@@ -1,0 +1,44 @@
+{
+  "appTitle": "Family Photo Station",
+  "hello": "Hello, Family!",
+  "resetComplete": "Reset Completed",
+  "changeLanguage": "Change Language",
+  "currentLanguage": "Current Language: {language}",
+  "languageEnglish": "English",
+  "languageChinese": "Chinese",
+  "settingsTitle": "Settings",
+  "settingsLanguage": "Language",
+  "settingsTheme": "Theme",
+  "themeLight": "Light",
+  "themeDark": "Dark",
+  "@appTitle": { "description": "Application title" },
+  "@hello": { "description": "Greeting text" },
+  "@resetComplete": { "description": "Reset status" },
+  "@changeLanguage": { "description": "Button to change language" },
+  "@currentLanguage": {
+    "description": "Shows the current language",
+    "placeholders": { "language": { "type": "String" } }
+  },
+  "@languageEnglish": { "description": "English label" },
+  "@languageChinese": { "description": "Chinese label" },
+  "adminInitTitle": "Initialize Administrator",
+  "adminInitDescription": "Create the first administrator for the desktop. Other users join by scanning via mobile app.",
+  "adminUsernameLabel": "Admin Username",
+  "adminDisplayNameLabel": "Display Name (optional)",
+  "adminPasswordLabel": "Password",
+  "adminPasswordConfirmLabel": "Confirm Password",
+  "adminInitSubmit": "Create Administrator",
+  "adminInitSuccess": "Administrator created successfully",
+  "fieldRequired": "This field is required",
+  "fieldMinLength": "Minimum length is {min}",
+  "passwordNotMatch": "Passwords do not match",
+  "translateErrorKey": "Error: {key}",
+  "@fieldMinLength": {
+    "description": "Minimum length validation message",
+    "placeholders": { "min": { "type": "int" } }
+  },
+  "@translateErrorKey": {
+    "description": "Translate backend error key",
+    "placeholders": { "key": { "type": "String" } }
+  }
+}
