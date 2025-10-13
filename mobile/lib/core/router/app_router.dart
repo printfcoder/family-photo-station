@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:get/get.dart';
 import 'package:family_photo_mobile/core/constants/app_constants.dart';
+import 'package:family_photo_mobile/core/controllers/auth_controller.dart';
 import 'package:family_photo_mobile/features/splash/splash_screen.dart';
 import 'package:family_photo_mobile/features/auth/login_screen.dart';
 import 'package:family_photo_mobile/features/auth/register_screen.dart';
@@ -8,18 +10,36 @@ import 'package:family_photo_mobile/features/home/home_screen.dart';
 import 'package:family_photo_mobile/features/settings/settings_screen.dart';
 import 'package:family_photo_mobile/features/upload/upload_screen.dart';
 import 'package:family_photo_mobile/features/error/error_screen.dart';
-import 'package:family_photo_mobile/features/device_discovery/device_discovery_screen.dart';
 
 class AppRouter {
   static final GoRouter router = GoRouter(
-    initialLocation: AppRoutes.deviceDiscovery,
+    initialLocation: AppRoutes.splash,
     debugLogDiagnostics: true,
     redirect: (context, state) {
-      // 简化重定向逻辑，直接返回设备发现页
-      // 后续可以添加更复杂的路由逻辑
-      if (state.matchedLocation != AppRoutes.deviceDiscovery &&
+      final authController = Get.find<AuthController>();
+      final isAuthenticated = authController.isAuthenticated;
+      final isLoading = authController.status == AuthStatus.loading || 
+                       authController.status == AuthStatus.initial;
+      
+      // 如果正在加载，显示启动页
+      if (isLoading) {
+        return AppRoutes.splash;
+      }
+      
+      // 如果未认证且不在认证相关页面，跳转到登录页
+      if (!isAuthenticated && 
+          !state.matchedLocation.startsWith('/login') && 
+          !state.matchedLocation.startsWith('/register') &&
           state.matchedLocation != AppRoutes.splash) {
-        return AppRoutes.deviceDiscovery;
+        return AppRoutes.login;
+      }
+      
+      // 如果已认证且在认证相关页面，跳转到首页
+      if (isAuthenticated && 
+          (state.matchedLocation.startsWith('/login') || 
+           state.matchedLocation.startsWith('/register') ||
+           state.matchedLocation == AppRoutes.splash)) {
+        return AppRoutes.home;
       }
       
       return null;
@@ -30,13 +50,6 @@ class AppRouter {
         path: AppRoutes.splash,
         name: 'splash',
         builder: (context, state) => const SplashScreen(),
-      ),
-      
-      // 设备发现
-      GoRoute(
-        path: AppRoutes.deviceDiscovery,
-        name: 'deviceDiscovery',
-        builder: (context, state) => const DeviceDiscoveryScreen(),
       ),
       
       // 认证相关
