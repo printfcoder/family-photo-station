@@ -1,6 +1,6 @@
 import 'dart:async';
-import '../db/database.dart';
-import 'user.dart';
+import 'package:family_photo_desktop/database/db/database.dart';
+import 'package:family_photo_desktop/database/users/user.dart';
 
 class UserRepository {
   final DatabaseClient db;

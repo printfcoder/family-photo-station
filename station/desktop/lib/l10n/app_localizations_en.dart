@@ -86,4 +86,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String translateErrorKey(String key) {
     return 'Error: $key';
   }
+
+  @override
+  String get featurePhotoManagementTitle => 'Smart Photo Management';
+
+  @override
+  String get featurePhotoManagementSubtitle =>
+      'Automatically organize and categorize your family photos';
+
+  @override
+  String get featurePhotoManagementStatsLabel => 'photos';
+
+  @override
+  String get featureAlbumCreationTitle => 'Beautiful Album Creation';
+
+  @override
+  String get featureAlbumCreationSubtitle =>
+      'Create and share family memories easily';
+
+  @override
+  String get featureAlbumCreationStatsLabel => 'albums';
+
+  @override
+  String get featureSecureStorageTitle => 'Secure Private Storage';
+
+  @override
+  String get featureSecureStorageSubtitle =>
+      'Your data belongs to you; local storage is safer';
+
+  @override
+  String get featureSecureStorageStatsLabel => 'privacy protection';
+
+  @override
+  String get navDashboard => 'Dashboard';
+
+  @override
+  String get navLibrary => 'Photo Library';
+
+  @override
+  String get navAlbums => 'Albums';
+
+  @override
+  String get navUsers => 'User Management';
+
+  @override
+  String get navStorage => 'Storage';
+
+  @override
+  String get navBackup => 'Backup';
+
+  @override
+  String get roleAdmin => 'Admin';
 }

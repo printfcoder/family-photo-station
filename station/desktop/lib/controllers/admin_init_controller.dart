@@ -1,5 +1,5 @@
 import 'package:get/get.dart';
-import '../domain/admin_init_service.dart';
+import 'package:family_photo_desktop/domain/admin_init_service.dart';
 
 class AdminInitController extends GetxController {
   final AdminInitService service;

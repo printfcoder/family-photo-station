@@ -1,7 +1,7 @@
 import 'package:get/get.dart';
-import '../data/db/sqlite_client.dart';
-import '../data/users/user_repository.dart';
-import '../domain/admin_init_service.dart';
+import 'package:family_photo_desktop/database/db/sqlite_client.dart';
+import 'package:family_photo_desktop/database/users/user_repository.dart';
+import 'package:family_photo_desktop/domain/admin_init_service.dart';
 
 class BootstrapController extends GetxController {
   final isLoading = true.obs;

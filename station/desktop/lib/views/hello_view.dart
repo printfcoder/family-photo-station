@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../l10n/app_localizations.dart';
+import 'package:family_photo_desktop/l10n/app_localizations.dart';
 
 class HelloView extends StatelessWidget {
   const HelloView({super.key});

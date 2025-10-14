@@ -12,7 +12,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get appTitle => '家庭照片站';
 
   @override
-  String get hello => '你好，家庭！';
+  String get hello => '你好，家人！';
 
   @override
   String get resetComplete => '重置完成';
@@ -35,28 +35,28 @@ class AppLocalizationsZh extends AppLocalizations {
   String get settingsTitle => '设置';
 
   @override
-  String get settingsLanguage => '语言设置';
+  String get settingsLanguage => '语言';
 
   @override
-  String get settingsTheme => '主题设置';
+  String get settingsTheme => '主题';
 
   @override
-  String get themeLight => '白天模式';
+  String get themeLight => '浅色';
 
   @override
-  String get themeDark => '夜间模式';
+  String get themeDark => '深色';
 
   @override
-  String get adminInitTitle => '初始化管理员';
+  String get adminInitTitle => '管理员初始化';
 
   @override
-  String get adminInitDescription => '在桌面端创建首个管理员。其他成员通过手机扫码加入。';
+  String get adminInitDescription => '为桌面端创建首位管理员。其他用户将通过移动端扫码加入。';
 
   @override
   String get adminUsernameLabel => '管理员用户名';
 
   @override
-  String get adminDisplayNameLabel => '显示名（可选）';
+  String get adminDisplayNameLabel => '显示名称（可选）';
 
   @override
   String get adminPasswordLabel => '密码';
@@ -71,7 +71,7 @@ class AppLocalizationsZh extends AppLocalizations {
   String get adminInitSuccess => '管理员创建成功';
 
   @override
-  String get fieldRequired => '该字段为必填';
+  String get fieldRequired => '该字段为必填项';
 
   @override
   String fieldMinLength(int min) {
@@ -79,10 +79,58 @@ class AppLocalizationsZh extends AppLocalizations {
   }
 
   @override
-  String get passwordNotMatch => '两次密码不一致';
+  String get passwordNotMatch => '两次输入的密码不一致';
 
   @override
   String translateErrorKey(String key) {
     return '错误：$key';
   }
+
+  @override
+  String get featurePhotoManagementTitle => '智能照片管理';
+
+  @override
+  String get featurePhotoManagementSubtitle => '自动整理和分类您的家庭照片';
+
+  @override
+  String get featurePhotoManagementStatsLabel => '张照片';
+
+  @override
+  String get featureAlbumCreationTitle => '精美相册创建';
+
+  @override
+  String get featureAlbumCreationSubtitle => '轻松创建和分享家庭回忆';
+
+  @override
+  String get featureAlbumCreationStatsLabel => '个相册';
+
+  @override
+  String get featureSecureStorageTitle => '安全私密存储';
+
+  @override
+  String get featureSecureStorageSubtitle => '您的数据完全属于您，本地存储更安全';
+
+  @override
+  String get featureSecureStorageStatsLabel => '隐私保护';
+
+  @override
+  String get navDashboard => '仪表板';
+
+  @override
+  String get navLibrary => '照片库';
+
+  @override
+  String get navAlbums => '相册';
+
+  @override
+  String get navUsers => '用户管理';
+
+  @override
+  String get navStorage => '存储管理';
+
+  @override
+  String get navBackup => '备份';
+
+  @override
+  String get roleAdmin => '管理员';
 }

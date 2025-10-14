@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:crypto/crypto.dart';
 import 'dart:convert';
 
-import '../data/users/user.dart';
-import '../data/users/user_repository.dart';
+import 'package:family_photo_desktop/database/users/user.dart';
+import 'package:family_photo_desktop/database/users/user_repository.dart';
 
 class AdminInitService {
   final UserRepository users;

@@ -59,13 +59,26 @@
 - 主题设置
   - 支持白天与夜间切换
 
-### 存储设置
+### 应用数据存储
 
+#### 数据库目录
+
+- Windows : %APPDATA%\FamilyPhotoStation\database\family_photo_station.db
+- macOS : ~/Library/Application Support/FamilyPhotoStation/database/family_photo_station.db
+- Linux : ~/.local/share/FamilyPhotoStation/database/family_photo_station.db
+
+#### 配置存储
+
+- 建不同的表用于存储不同的业务
+
+### 照片存储设置
+
+- 元数据存储
+  - 存储照片的元数据，在SQLite中
 - 存储位置
   - 支持选择本地协议存储目录
   - 支持SMB协议指定网络存储
   - 需要验证每个存储位置的可用性
-- 
 
 ## 安全相关
 

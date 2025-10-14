@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../controllers/bootstrap_controller.dart';
-import '../views/hello_view.dart';
-import '../views/admin_init_view.dart';
-import '../views/shell_view.dart';
+import 'package:family_photo_desktop/controllers/bootstrap_controller.dart';
+import 'package:family_photo_desktop/views/hello_view.dart';
+import 'package:family_photo_desktop/views/admin_init_view.dart';
+import 'package:family_photo_desktop/views/shell_view.dart';
 
 class BootstrapView extends GetView<BootstrapController> {
   const BootstrapView({super.key});

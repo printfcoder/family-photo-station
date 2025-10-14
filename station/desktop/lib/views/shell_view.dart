@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../l10n/app_localizations.dart';
-import '../controllers/settings_controller.dart';
-import 'hello_view.dart';
+
+import 'package:family_photo_desktop/controllers/bootstrap_controller.dart';
+import 'package:family_photo_desktop/controllers/settings_controller.dart';
+import 'package:family_photo_desktop/l10n/app_localizations.dart';
 
 class ShellView extends StatelessWidget {
   final Widget body;
@@ -11,61 +12,104 @@ class ShellView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = AppLocalizations.of(context)!;
-    final settings = Get.isRegistered<SettingsController>()
-        ? Get.find<SettingsController>()
-        : Get.put(SettingsController(), permanent: true);
+    
+    // 检查是否为初始化状态（没有管理员）
+    final bootstrap = Get.isRegistered<BootstrapController>()
+        ? Get.find<BootstrapController>()
+        : null;
+    final isInitializing = bootstrap != null && !bootstrap.hasAdmin.value;
+    
     return Scaffold(
       body: Row(
         children: [
-          Container(
-            width: 220,
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surface,
-              boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 12)],
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // 顶部品牌栏
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      // 项目Logo
-                      Image.asset('assets/icons/app_icon.png', width: 32, height: 32),
-                      const SizedBox(width: 12),
-                      Text(t.appTitle, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    ],
+          // 只在非初始化状态显示侧边栏
+          if (!isInitializing) ...[
+            Container(
+              width: 220,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.surface,
+                boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 12)],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // 顶部品牌栏
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        // 项目Logo
+                        Container(
+                          width: 32,
+                          height: 32,
+                          decoration: BoxDecoration(
+                            color: Theme.of(context).colorScheme.primary,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(
+                            Icons.photo_library_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            t.appTitle,
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 8),
-                _NavItem(icon: Icons.dashboard, label: 'Dashboard', onTap: () {}),
-                _NavItem(icon: Icons.people_outline, label: 'Community', onTap: () {}),
-                _NavItem(icon: Icons.storefront, label: 'Prompt Store', onTap: () {}),
-                _NavItem(icon: Icons.favorite_border, label: 'Favorites', onTap: () {}),
-                _NavItem(icon: Icons.brush, label: 'Art Generation', onTap: () {}),
-                _NavItem(icon: Icons.message_outlined, label: 'Messages', onTap: () {}),
-                const Spacer(),
-                _NavItem(icon: Icons.settings, label: t.settingsTitle, onTap: () {
-                  Get.to(() => SettingsView());
-                }),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Row(
-                    children: [
-                      const CircleAvatar(radius: 16),
-                      const SizedBox(width: 12),
-                      Expanded(child: Text('Jacob Jones', overflow: TextOverflow.ellipsis)),
-                    ],
-                  ),
-                )
-              ],
+                  const SizedBox(height: 8),
+                  _NavItem(icon: Icons.dashboard, label: t.navDashboard, onTap: () {}),
+                  _NavItem(icon: Icons.photo_library, label: t.navLibrary, onTap: () {}),
+                  _NavItem(icon: Icons.photo_album, label: t.navAlbums, onTap: () {}),
+                  _NavItem(icon: Icons.people_outline, label: t.navUsers, onTap: () {}),
+                  _NavItem(icon: Icons.storage, label: t.navStorage, onTap: () {}),
+                  _NavItem(icon: Icons.backup, label: t.navBackup, onTap: () {}),
+                  const Spacer(),
+                  _NavItem(icon: Icons.settings, label: t.settingsTitle, onTap: () {
+                    Get.to(() => SettingsView());
+                  }),
+                  const SizedBox(height: 16),
+                  Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 16,
+                          backgroundColor: Theme.of(context).colorScheme.primary,
+                          child: Icon(
+                            Icons.person,
+                            color: Colors.white,
+                            size: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Text(
+                            t.roleAdmin,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
+            // 分界线
+            Container(
+              width: 1,
+              color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.2),
+            ),
+          ],
           Expanded(
             child: Container(
-              color: Theme.of(context).colorScheme.background,
+              color: Theme.of(context).colorScheme.surface,
               child: body,
             ),
           ),
@@ -97,7 +141,7 @@ class _NavItem extends StatelessWidget {
 }
 
 class SettingsView extends StatelessWidget {
-  SettingsView({super.key});
+  const SettingsView({super.key});
   final languages = const [Locale('en'), Locale('zh')];
 
   @override
@@ -121,7 +165,7 @@ class SettingsView extends StatelessWidget {
               ),
               child: Row(
                 children: [
-                  Icon(Icons.settings, color: Colors.white.withOpacity(0.9), size: 28),
+                  Icon(Icons.settings, color: Colors.white.withValues(alpha: 0.9), size: 28),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Text(

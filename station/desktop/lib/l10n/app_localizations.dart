@@ -241,6 +241,102 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error: {key}'**
   String translateErrorKey(String key);
+
+  /// No description provided for @featurePhotoManagementTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Smart Photo Management'**
+  String get featurePhotoManagementTitle;
+
+  /// No description provided for @featurePhotoManagementSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatically organize and categorize your family photos'**
+  String get featurePhotoManagementSubtitle;
+
+  /// No description provided for @featurePhotoManagementStatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'photos'**
+  String get featurePhotoManagementStatsLabel;
+
+  /// No description provided for @featureAlbumCreationTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Beautiful Album Creation'**
+  String get featureAlbumCreationTitle;
+
+  /// No description provided for @featureAlbumCreationSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Create and share family memories easily'**
+  String get featureAlbumCreationSubtitle;
+
+  /// No description provided for @featureAlbumCreationStatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'albums'**
+  String get featureAlbumCreationStatsLabel;
+
+  /// No description provided for @featureSecureStorageTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Secure Private Storage'**
+  String get featureSecureStorageTitle;
+
+  /// No description provided for @featureSecureStorageSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your data belongs to you; local storage is safer'**
+  String get featureSecureStorageSubtitle;
+
+  /// No description provided for @featureSecureStorageStatsLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'privacy protection'**
+  String get featureSecureStorageStatsLabel;
+
+  /// No description provided for @navDashboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Dashboard'**
+  String get navDashboard;
+
+  /// No description provided for @navLibrary.
+  ///
+  /// In en, this message translates to:
+  /// **'Photo Library'**
+  String get navLibrary;
+
+  /// No description provided for @navAlbums.
+  ///
+  /// In en, this message translates to:
+  /// **'Albums'**
+  String get navAlbums;
+
+  /// No description provided for @navUsers.
+  ///
+  /// In en, this message translates to:
+  /// **'User Management'**
+  String get navUsers;
+
+  /// No description provided for @navStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage'**
+  String get navStorage;
+
+  /// No description provided for @navBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup'**
+  String get navBackup;
+
+  /// No description provided for @roleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get roleAdmin;
 }
 
 class _AppLocalizationsDelegate

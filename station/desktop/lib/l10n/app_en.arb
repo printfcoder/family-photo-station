@@ -40,5 +40,21 @@
   "@translateErrorKey": {
     "description": "Translate backend error key",
     "placeholders": { "key": { "type": "String" } }
-  }
+  },
+  "featurePhotoManagementTitle": "Smart Photo Management",
+  "featurePhotoManagementSubtitle": "Automatically organize and categorize your family photos",
+  "featurePhotoManagementStatsLabel": "photos",
+  "featureAlbumCreationTitle": "Beautiful Album Creation",
+  "featureAlbumCreationSubtitle": "Create and share family memories easily",
+  "featureAlbumCreationStatsLabel": "albums",
+  "featureSecureStorageTitle": "Secure Private Storage",
+  "featureSecureStorageSubtitle": "Your data belongs to you; local storage is safer",
+  "featureSecureStorageStatsLabel": "privacy protection",
+  "navDashboard": "Dashboard",
+  "navLibrary": "Photo Library",
+  "navAlbums": "Albums",
+  "navUsers": "User Management",
+  "navStorage": "Storage",
+  "navBackup": "Backup",
+  "roleAdmin": "Admin"
 }
