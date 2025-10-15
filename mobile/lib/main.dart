@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'app/routes/app_pages.dart';
+import 'package:family_photo_mobile/routes/app_pages.dart';
 
 void main() {
   runApp(const MyApp());

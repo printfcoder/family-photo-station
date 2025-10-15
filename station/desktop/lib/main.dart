@@ -6,6 +6,8 @@ import 'views/bootstrap_view.dart';
 import 'controllers/bootstrap_controller.dart';
 import 'controllers/settings_controller.dart';
 import 'controllers/auth_controller.dart';
+import 'services/local_server.dart';
+import 'controllers/invite_controller.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,6 +40,9 @@ class MyApp extends StatelessWidget {
         Get.put(SettingsController(), permanent: true);
         Get.put(BootstrapController(), permanent: true);
         Get.put(AuthController(), permanent: true);
+        final server = Get.put(LocalServer(), permanent: true);
+        server.start();
+        Get.put(InviteController(), permanent: true);
       }),
       home: const BootstrapView(),
       debugShowCheckedModeBanner: false,

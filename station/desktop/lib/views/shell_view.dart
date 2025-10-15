@@ -6,6 +6,8 @@ import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
+import 'package:family_photo_desktop/services/local_server.dart';
+import 'package:family_photo_desktop/controllers/invite_controller.dart';
 
 import 'package:family_photo_desktop/controllers/bootstrap_controller.dart';
 import 'package:family_photo_desktop/controllers/settings_controller.dart';
@@ -359,20 +361,29 @@ class UsersView extends StatelessWidget {
 
   void _showAddUserQrDialog(BuildContext context, _UsersViewController c) {
     final t = AppLocalizations.of(context)!;
-    c.startQrRegister();
+    final invite = Get.find<InviteController>();
+    invite.startQrRegister();
+    final server = Get.find<LocalServer>();
     showDialog(
       context: context,
       builder: (_) => AlertDialog(
         title: Text(t.usersAddQrDialogTitle),
         content: Obx(() {
-          final token = c.regToken.value;
-          final status = c.regStatus.value;
+          final token = invite.regToken.value;
+          final status = invite.regStatus.value;
           final statusText = switch (status) {
             QrRegisterStatus.idle => t.registerQrStatusReleased,
             QrRegisterStatus.pending => t.registerQrStatusPending,
             QrRegisterStatus.scanned => t.registerQrStatusScanned,
             QrRegisterStatus.completed => t.registerStatusCompleted,
           };
+          if (status == QrRegisterStatus.completed) {
+            // 注册完成后刷新列表并自动关闭对话框
+            Future.microtask(() async {
+              await c.loadUsers();
+              if (Get.isDialogOpen == true) Get.back();
+            });
+          }
           return SizedBox(
             width: 700,
             child: Row(
@@ -393,7 +404,7 @@ class UsersView extends StatelessWidget {
                               ? const ColorFilter.mode(Colors.grey, BlendMode.saturation)
                               : const ColorFilter.mode(Colors.transparent, BlendMode.saturation),
                           child: QrImageView(
-                            data: 'familyphoto://register?token=$token',
+                            data: 'familyphoto://register?host=${server.hostAddress}&port=${server.listenPort}&token=$token',
                             version: QrVersions.auto,
                             size: 220,
                           ),
@@ -411,7 +422,7 @@ class UsersView extends StatelessWidget {
           );
         }),
         actions: [
-          TextButton(onPressed: c.startQrRegister, child: Text(t.usersQrRefresh)),
+          TextButton(onPressed: invite.startQrRegister, child: Text(t.usersQrRefresh)),
           TextButton(onPressed: () => Get.back(), child: const Text('关闭')),
         ],
       ),
@@ -499,9 +510,7 @@ class UsersView extends StatelessWidget {
 class _UsersViewController extends GetxController {
   final users = <User>[].obs;
   final isLoading = true.obs;
-  final regToken = ''.obs;
-  final regStatus = Rx<QrRegisterStatus>(QrRegisterStatus.idle);
-  Timer? _regTimer;
+  // 注册二维码状态由 InviteController 管理
 
   late final UserRepository repo;
   late final DatabaseClient db;
@@ -513,6 +522,15 @@ class _UsersViewController extends GetxController {
     repo = auth.users;
     db = repo.db;
     loadUsers();
+    // 监听注册状态，完成后刷新列表
+    if (Get.isRegistered<InviteController>()) {
+      final invite = Get.find<InviteController>();
+      ever(invite.regStatus, (status) {
+        if (status == QrRegisterStatus.completed) {
+          loadUsers();
+        }
+      });
+    }
   }
 
   Future<void> loadUsers() async {
@@ -560,35 +578,8 @@ class _UsersViewController extends GetxController {
     }
   }
 
-  void startQrRegister() {
-    regToken.value = const Uuid().v4();
-    regStatus.value = QrRegisterStatus.pending;
-    _regTimer?.cancel();
-    _regTimer = Timer(const Duration(minutes: 2), () {
-      if (regStatus.value != QrRegisterStatus.completed) {
-        releaseQrRegister();
-      }
-    });
-  }
-
-  void markRegScanned() {
-    regStatus.value = QrRegisterStatus.scanned;
-    _regTimer?.cancel();
-    _regTimer = Timer(const Duration(minutes: 2), () {
-      if (regStatus.value != QrRegisterStatus.completed) {
-        releaseQrRegister();
-      }
-    });
-  }
-
-  void releaseQrRegister() {
-    regToken.value = '';
-    regStatus.value = QrRegisterStatus.idle;
-    _regTimer?.cancel();
-  }
 }
 
-enum QrRegisterStatus { idle, pending, scanned, completed }
 
 class ProfileView extends StatelessWidget {
   const ProfileView({super.key});

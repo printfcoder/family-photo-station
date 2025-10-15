@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import '../../routes/app_pages.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:family_photo_mobile/routes/app_pages.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -13,11 +14,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    // Simulate a delay for the splash screen
-    Future.delayed(const Duration(seconds: 2), () {
-      // Navigate to the discovery screen after the delay
+    _routeAfterSplash();
+  }
+
+  Future<void> _routeAfterSplash() async {
+    // 短暂展示启动页
+    await Future.delayed(const Duration(milliseconds: 800));
+    final prefs = await SharedPreferences.getInstance();
+    final firstRunDone = prefs.getBool('first_run_completed') ?? false;
+    final host = prefs.getString('station.host');
+    final port = prefs.getInt('station.port');
+    if (firstRunDone && host != null && port != null) {
+      Get.offAllNamed(Routes.home);
+    } else {
       Get.offAllNamed(Routes.discovery);
-    });
+    }
   }
 
   @override

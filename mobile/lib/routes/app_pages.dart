@@ -1,6 +1,8 @@
 import 'package:get/get.dart';
-import '../features/splash/splash_screen.dart';
-import '../features/discovery/discovery_screen.dart';
+import 'package:family_photo_mobile/splash/splash_screen.dart';
+import 'package:family_photo_mobile/discovery/discovery_screen.dart';
+import 'package:family_photo_mobile/register/register_screen.dart';
+import 'package:family_photo_mobile/home/home_screen.dart';
 
 part 'app_routes.dart';
 
@@ -15,6 +17,14 @@ class AppPages {
     GetPage(
       name: Routes.discovery,
       page: () => const DiscoveryScreen(),
+    ),
+    GetPage(
+      name: Routes.register,
+      page: () => const RegisterScreen(),
+    ),
+    GetPage(
+      name: Routes.home,
+      page: () => const HomeScreen(),
     ),
   ];
 }

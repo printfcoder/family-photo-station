@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:family_photo_desktop/services/local_server.dart';
 
 import 'package:family_photo_desktop/l10n/app_localizations.dart';
 import 'package:family_photo_desktop/controllers/auth_controller.dart';
@@ -71,6 +72,7 @@ class _LoginViewState extends State<LoginView> {
                             Obx(() {
                               final token = auth.qrToken.value;
                               final status = auth.qrStatus.value;
+                              final server = Get.find<LocalServer>();
                               final statusText = switch (status) {
                                 QrLoginStatus.idle => t.loginQrStatusPending,
                                 QrLoginStatus.pending => t.loginQrStatusPending,
@@ -92,7 +94,7 @@ class _LoginViewState extends State<LoginView> {
                                             borderRadius: BorderRadius.circular(12),
                                           ),
                                           child: QrImageView(
-                                            data: 'familyphoto://login?token=$token',
+                                            data: 'familyphoto://login?host=${server.hostAddress}&port=${server.listenPort}&token=$token',
                                             version: QrVersions.auto,
                                             size: 220,
                                           ),
