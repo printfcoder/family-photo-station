@@ -137,4 +137,96 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get roleAdmin => 'Admin';
+
+  @override
+  String get loginTitle => 'Sign In';
+
+  @override
+  String get loginQrTab => 'Scan to Sign In';
+
+  @override
+  String get loginPasswordTab => 'Password Sign In';
+
+  @override
+  String get loginUsernameLabel => 'Username';
+
+  @override
+  String get loginPasswordLabel => 'Password';
+
+  @override
+  String get loginSignInButton => 'Sign In';
+
+  @override
+  String get loginQrInstruction => 'Use the mobile app to scan the QR code';
+
+  @override
+  String get loginQrStatusPending => 'Waiting for scan...';
+
+  @override
+  String get loginQrStatusScanned => 'Scanned, confirm on mobile';
+
+  @override
+  String get loginQrStatusCompleted => 'Signed in';
+
+  @override
+  String sessionCurrentUser(String username) {
+    return 'Current User: $username';
+  }
+
+  @override
+  String get actionLogout => 'Log Out';
+
+  @override
+  String get actionSwitchUser => 'Switch User';
+
+  @override
+  String get registerTitle => 'Register';
+
+  @override
+  String get registerQrInstruction => 'Scan to register';
+
+  @override
+  String get registerStatusPending => 'Registering...';
+
+  @override
+  String get registerQrStatusPending => 'Waiting for scan...';
+
+  @override
+  String get registerStatusCompleted => 'Registered';
+
+  @override
+  String get registerQrStatusScanned => 'Scanned, awaiting confirmation';
+
+  @override
+  String get usersAddUser => 'Add User';
+
+  @override
+  String get usersEmpty => 'No users';
+
+  @override
+  String get usersRoleAdmin => 'Admin';
+
+  @override
+  String get usersRoleMember => 'Member';
+
+  @override
+  String get usersResetPassword => 'Reset Password';
+
+  @override
+  String get usersDelete => 'Delete';
+
+  @override
+  String get usersDeleteAdminForbidden => 'Admin account cannot be deleted';
+
+  @override
+  String get registerQrStatusReleased => 'QR code released/expired';
+
+  @override
+  String get usersQrRefresh => 'Refresh QR code';
+
+  @override
+  String get usersAddQrDialogTitle => 'Register QR Code';
+
+  @override
+  String get usersAddQrInstruction => 'Use Photo Mobile to scan to register';
 }

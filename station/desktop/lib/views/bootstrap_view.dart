@@ -4,6 +4,8 @@ import 'package:family_photo_desktop/controllers/bootstrap_controller.dart';
 import 'package:family_photo_desktop/views/hello_view.dart';
 import 'package:family_photo_desktop/views/admin_init_view.dart';
 import 'package:family_photo_desktop/views/shell_view.dart';
+import 'package:family_photo_desktop/views/login_view.dart';
+import 'package:family_photo_desktop/controllers/auth_controller.dart';
 
 class BootstrapView extends GetView<BootstrapController> {
   const BootstrapView({super.key});
@@ -16,6 +18,10 @@ class BootstrapView extends GetView<BootstrapController> {
       }
       if (!controller.hasAdmin.value) {
         return ShellView(body: AdminInitView(service: controller.adminService));
+      }
+      final auth = Get.find<AuthController>();
+      if (!auth.isAuthenticated.value) {
+        return const ShellView(body: LoginView());
       }
       return const ShellView(body: HelloView());
     });

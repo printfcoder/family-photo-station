@@ -337,6 +337,186 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Admin'**
   String get roleAdmin;
+
+  /// No description provided for @loginTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get loginTitle;
+
+  /// No description provided for @loginQrTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to Sign In'**
+  String get loginQrTab;
+
+  /// No description provided for @loginPasswordTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Password Sign In'**
+  String get loginPasswordTab;
+
+  /// No description provided for @loginUsernameLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get loginUsernameLabel;
+
+  /// No description provided for @loginPasswordLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get loginPasswordLabel;
+
+  /// No description provided for @loginSignInButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign In'**
+  String get loginSignInButton;
+
+  /// No description provided for @loginQrInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Use the mobile app to scan the QR code'**
+  String get loginQrInstruction;
+
+  /// No description provided for @loginQrStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for scan...'**
+  String get loginQrStatusPending;
+
+  /// No description provided for @loginQrStatusScanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned, confirm on mobile'**
+  String get loginQrStatusScanned;
+
+  /// No description provided for @loginQrStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Signed in'**
+  String get loginQrStatusCompleted;
+
+  /// Display the current user
+  ///
+  /// In en, this message translates to:
+  /// **'Current User: {username}'**
+  String sessionCurrentUser(String username);
+
+  /// No description provided for @actionLogout.
+  ///
+  /// In en, this message translates to:
+  /// **'Log Out'**
+  String get actionLogout;
+
+  /// No description provided for @actionSwitchUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch User'**
+  String get actionSwitchUser;
+
+  /// No description provided for @registerTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get registerTitle;
+
+  /// No description provided for @registerQrInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan to register'**
+  String get registerQrInstruction;
+
+  /// No description provided for @registerStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Registering...'**
+  String get registerStatusPending;
+
+  /// No description provided for @registerQrStatusPending.
+  ///
+  /// In en, this message translates to:
+  /// **'Waiting for scan...'**
+  String get registerQrStatusPending;
+
+  /// No description provided for @registerStatusCompleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Registered'**
+  String get registerStatusCompleted;
+
+  /// No description provided for @registerQrStatusScanned.
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned, awaiting confirmation'**
+  String get registerQrStatusScanned;
+
+  /// No description provided for @usersAddUser.
+  ///
+  /// In en, this message translates to:
+  /// **'Add User'**
+  String get usersAddUser;
+
+  /// No description provided for @usersEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No users'**
+  String get usersEmpty;
+
+  /// No description provided for @usersRoleAdmin.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin'**
+  String get usersRoleAdmin;
+
+  /// No description provided for @usersRoleMember.
+  ///
+  /// In en, this message translates to:
+  /// **'Member'**
+  String get usersRoleMember;
+
+  /// No description provided for @usersResetPassword.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset Password'**
+  String get usersResetPassword;
+
+  /// No description provided for @usersDelete.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete'**
+  String get usersDelete;
+
+  /// No description provided for @usersDeleteAdminForbidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Admin account cannot be deleted'**
+  String get usersDeleteAdminForbidden;
+
+  /// No description provided for @registerQrStatusReleased.
+  ///
+  /// In en, this message translates to:
+  /// **'QR code released/expired'**
+  String get registerQrStatusReleased;
+
+  /// No description provided for @usersQrRefresh.
+  ///
+  /// In en, this message translates to:
+  /// **'Refresh QR code'**
+  String get usersQrRefresh;
+
+  /// No description provided for @usersAddQrDialogTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Register QR Code'**
+  String get usersAddQrDialogTitle;
+
+  /// No description provided for @usersAddQrInstruction.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Photo Mobile to scan to register'**
+  String get usersAddQrInstruction;
 }
 
 class _AppLocalizationsDelegate

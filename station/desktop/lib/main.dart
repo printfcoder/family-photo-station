@@ -5,6 +5,7 @@ import 'l10n/app_localizations.dart';
 import 'views/bootstrap_view.dart';
 import 'controllers/bootstrap_controller.dart';
 import 'controllers/settings_controller.dart';
+import 'controllers/auth_controller.dart';
 
 void main() {
   runApp(const MyApp());
@@ -36,6 +37,7 @@ class MyApp extends StatelessWidget {
       initialBinding: BindingsBuilder(() {
         Get.put(SettingsController(), permanent: true);
         Get.put(BootstrapController(), permanent: true);
+        Get.put(AuthController(), permanent: true);
       }),
       home: const BootstrapView(),
       debugShowCheckedModeBanner: false,

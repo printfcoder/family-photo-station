@@ -133,4 +133,96 @@ class AppLocalizationsZh extends AppLocalizations {
 
   @override
   String get roleAdmin => '管理员';
+
+  @override
+  String get loginTitle => '登录';
+
+  @override
+  String get loginQrTab => '扫码登录';
+
+  @override
+  String get loginPasswordTab => '密码登录';
+
+  @override
+  String get loginUsernameLabel => '用户名';
+
+  @override
+  String get loginPasswordLabel => '密码';
+
+  @override
+  String get loginSignInButton => '登录';
+
+  @override
+  String get loginQrInstruction => '请使用手机端扫描二维码';
+
+  @override
+  String get loginQrStatusPending => '等待扫码...';
+
+  @override
+  String get loginQrStatusScanned => '已扫码，请在手机上确认';
+
+  @override
+  String get loginQrStatusCompleted => '已登录';
+
+  @override
+  String sessionCurrentUser(String username) {
+    return '当前用户：$username';
+  }
+
+  @override
+  String get actionLogout => '退出登录';
+
+  @override
+  String get actionSwitchUser => '切换用户';
+
+  @override
+  String get registerTitle => '注册';
+
+  @override
+  String get registerQrInstruction => '扫码注册';
+
+  @override
+  String get registerStatusPending => '注册中...';
+
+  @override
+  String get registerQrStatusPending => '等待扫码...';
+
+  @override
+  String get registerStatusCompleted => '注册完成';
+
+  @override
+  String get registerQrStatusScanned => '已扫码，等待确认';
+
+  @override
+  String get usersAddUser => '新增用户';
+
+  @override
+  String get usersEmpty => '暂无用户';
+
+  @override
+  String get usersRoleAdmin => '管理员';
+
+  @override
+  String get usersRoleMember => '成员';
+
+  @override
+  String get usersResetPassword => '重置密码';
+
+  @override
+  String get usersDelete => '删除';
+
+  @override
+  String get usersDeleteAdminForbidden => '管理员不可删除';
+
+  @override
+  String get registerQrStatusReleased => '二维码已释放/过期';
+
+  @override
+  String get usersQrRefresh => '刷新二维码';
+
+  @override
+  String get usersAddQrDialogTitle => '注册二维码';
+
+  @override
+  String get usersAddQrInstruction => '请使用 Photo Mobile 扫码注册';
 }
