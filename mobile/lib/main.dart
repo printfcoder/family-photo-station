@@ -1,28 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:family_photo_mobile/core/router/app_router.dart';
+import 'package:get/get.dart';
+import 'app/routes/app_pages.dart';
 
 void main() {
-  WidgetsFlutterBinding.ensureInitialized();
-  
-  runApp(const FamilyPhotoApp());
+  runApp(const MyApp());
 }
 
-class FamilyPhotoApp extends StatelessWidget {
-  const FamilyPhotoApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp.router(
-      title: '家庭照片站',
+    return GetMaterialApp(
+      title: 'Family Photo Station',
       theme: ThemeData(
         primarySwatch: Colors.blue,
-        useMaterial3: true,
+        visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      routerDelegate: AppRouter.router.routerDelegate,
-      routeInformationParser: AppRouter.router.routeInformationParser,
-      routeInformationProvider: AppRouter.router.routeInformationProvider,
-      debugShowCheckedModeBanner: false,
+      initialRoute: AppPages.initial,
+      getPages: AppPages.routes,
     );
   }
 }
