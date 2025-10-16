@@ -15,6 +15,8 @@ enum QrLoginStatus { idle, pending, scanned, confirmed }
 class AuthController extends GetxController {
   final currentUser = Rxn<User>();
   final isAuthenticated = false.obs;
+  final isSwitching = false.obs;
+  User? _previousUser;
 
   // QR 登录状态
   final qrStatus = QrLoginStatus.idle.obs;
@@ -98,5 +100,30 @@ class AuthController extends GetxController {
     await _saveSession(null);
     qrStatus.value = QrLoginStatus.idle;
     qrToken.value = '';
+    isSwitching.value = false;
+    _previousUser = null;
+  }
+
+  /// Begin switch-user flow: show login view but allow cancel to restore session
+  Future<void> startSwitch() async {
+    _previousUser = currentUser.value;
+    isSwitching.value = true;
+    currentUser.value = null;
+    isAuthenticated.value = false;
+    await _saveSession(null);
+    qrStatus.value = QrLoginStatus.idle;
+    qrToken.value = '';
+  }
+
+  /// Cancel switch and restore previous session (if any)
+  Future<void> cancelSwitch() async {
+    final prev = _previousUser;
+    if (prev != null) {
+      currentUser.value = prev;
+      isAuthenticated.value = true;
+      await _saveSession(prev);
+    }
+    isSwitching.value = false;
+    _previousUser = null;
   }
 }

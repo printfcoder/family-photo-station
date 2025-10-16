@@ -1,3 +1,6 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -5,8 +8,108 @@ import 'package:family_photo_mobile/routes/app_pages.dart';
 import 'package:family_photo_mobile/qr/qr_scan_screen.dart';
 import 'package:dio/dio.dart';
 
-class DiscoveryScreen extends StatelessWidget {
+class DiscoveryScreen extends StatefulWidget {
   const DiscoveryScreen({super.key});
+
+  @override
+  State<DiscoveryScreen> createState() => _DiscoveryScreenState();
+}
+
+class _DiscoveryStation {
+  final String host;
+  final int port;
+  final String? name;
+  DateTime lastSeen;
+  _DiscoveryStation({required this.host, required this.port, this.name, DateTime? lastSeen})
+      : lastSeen = lastSeen ?? DateTime.now();
+}
+
+class _DiscoveryScreenState extends State<DiscoveryScreen> {
+  static const int _discoveryPort = 45454; // align with desktop responder
+  RawDatagramSocket? _socket;
+  Timer? _broadcastTimer;
+  bool _scanning = false;
+  final List<_DiscoveryStation> _stations = [];
+  final Set<String> _seenKeys = {};
+
+  @override
+  void initState() {
+    super.initState();
+    _startScan();
+  }
+
+  @override
+  void dispose() {
+    _broadcastTimer?.cancel();
+    _socket?.close();
+    super.dispose();
+  }
+
+  Future<void> _startScan() async {
+    _broadcastTimer?.cancel();
+    _socket?.close();
+    setState(() {
+      _scanning = true;
+      _stations.clear();
+      _seenKeys.clear();
+    });
+    try {
+      final socket = await RawDatagramSocket.bind(InternetAddress.anyIPv4, 0);
+      socket.broadcastEnabled = true;
+      _socket = socket;
+      socket.listen((event) {
+        if (event == RawSocketEvent.read) {
+          final dg = socket.receive();
+          if (dg == null) return;
+          final data = dg.data;
+          try {
+            final payload = json.decode(utf8.decode(data));
+            if (payload is Map && payload['service'] == 'family_photo_station') {
+              final host = (payload['host'] as String?) ?? dg.address.address;
+              final port = payload['port'] is int ? payload['port'] as int : int.tryParse('${payload['port']}') ?? 0;
+              if (host.isNotEmpty && port > 0) {
+                final key = '$host:$port';
+                String? name;
+                final rawName = payload['name'];
+                if (rawName is String && rawName.isNotEmpty) name = rawName;
+                if (!_seenKeys.contains(key)) {
+                  _seenKeys.add(key);
+                  setState(() {
+                    _stations.add(_DiscoveryStation(host: host, port: port, name: name));
+                  });
+                } else {
+                  final idx = _stations.indexWhere((e) => '${e.host}:${e.port}' == key);
+                  if (idx >= 0) _stations[idx].lastSeen = DateTime.now();
+                }
+              }
+            }
+          } catch (_) {
+            // ignore non-JSON responses
+          }
+        }
+      });
+
+      // send initial and periodic broadcast discovery probe
+      void sendProbe() {
+        final bytes = utf8.encode('FAMILY_PHOTO_DISCOVERY');
+        socket.send(bytes, InternetAddress('255.255.255.255'), _discoveryPort);
+      }
+      sendProbe();
+      _broadcastTimer = Timer.periodic(const Duration(seconds: 2), (_) => sendProbe());
+
+      // Stop scanning indicator after a short period, but keep listening
+      Timer(const Duration(seconds: 8), () {
+        if (mounted) setState(() => _scanning = false);
+      });
+    } catch (e) {
+      if (mounted) {
+        setState(() => _scanning = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('自动发现初始化失败：$e')),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,17 +242,50 @@ class DiscoveryScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 16),
-            Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: const [
-                    Text('正在扫描局域网设备...（示例占位）'),
-                    SizedBox(height: 12),
-                    CircularProgressIndicator(),
-                  ],
+            Row(
+              children: [
+                ElevatedButton.icon(
+                  onPressed: _startScan,
+                  icon: const Icon(Icons.refresh),
+                  label: const Text('重新扫描局域网'),
                 ),
-              ),
+                const SizedBox(width: 12),
+                if (_scanning) ...[
+                  const SizedBox(
+                    width: 18,
+                    height: 18,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  ),
+                  const SizedBox(width: 8),
+                  const Text('正在扫描...')
+                ],
+              ],
+            ),
+            const SizedBox(height: 12),
+            Expanded(
+              child: _stations.isEmpty
+                  ? Center(
+                      child: Text(_scanning ? '正在扫描局域网设备...' : '未发现设备，可尝试手动连接或二维码'),
+                    )
+                  : ListView.separated(
+                      itemCount: _stations.length,
+                      separatorBuilder: (_, __) => const Divider(height: 1),
+                      itemBuilder: (context, index) {
+                        final s = _stations[index];
+                        return ListTile(
+                          leading: const Icon(Icons.devices_other),
+                          title: Text(s.name?.isNotEmpty == true ? s.name! : '家庭照片站'),
+                          subtitle: Text('${s.host}:${s.port}'),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () async {
+                            final prefs = await SharedPreferences.getInstance();
+                            await prefs.setString('station.host', s.host);
+                            await prefs.setInt('station.port', s.port);
+                            Get.toNamed(Routes.register);
+                          },
+                        );
+                      },
+                    ),
             ),
           ],
         ),

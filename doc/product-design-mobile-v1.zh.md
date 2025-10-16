@@ -1,5 +1,9 @@
 # 产品设计-移动端 V1（局域网版本）
 
+> UI 风格：https://dribbble.com/shots/26490911-UI-UX-Design-Mobile-App-Design-Photo-Editing-Watermark-App
+> https://dribbble.com/search/photo-share-management-mobile
+
+
 ## 产品定位
 
 **家庭局域网内的私有照片管理移动应用**，通过WiFi连接家庭照片站，实现照片的便捷上传、浏览和共享。无需互联网连接，保障家庭照片的隐私安全。

@@ -5,7 +5,7 @@ import 'package:family_photo_desktop/services/local_server.dart';
 
 import 'package:family_photo_desktop/l10n/app_localizations.dart';
 import 'package:family_photo_desktop/controllers/auth_controller.dart';
-import 'package:family_photo_desktop/views/shell_view.dart';
+// ShellView is provided by BootstrapView; do not wrap again here.
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -41,8 +41,7 @@ class _LoginViewState extends State<LoginView> {
     final t = AppLocalizations.of(context)!;
     final auth = Get.find<AuthController>();
 
-    return ShellView(
-      body: Center(
+    return Center(
         child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 900),
           child: Card(
@@ -54,7 +53,24 @@ class _LoginViewState extends State<LoginView> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Text(t.loginTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(t.loginTitle, style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                      ),
+                      Obx(() {
+                        final switching = auth.isSwitching.value;
+                        if (!switching) return const SizedBox.shrink();
+                        return OutlinedButton.icon(
+                          onPressed: () async {
+                            await auth.cancelSwitch();
+                          },
+                          icon: const Icon(Icons.arrow_back),
+                          label: const Text('返回'),
+                        );
+                      })
+                    ],
+                  ),
                   const SizedBox(height: 16),
                   DefaultTabController(
                     length: 2,
@@ -200,7 +216,6 @@ class _LoginViewState extends State<LoginView> {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }

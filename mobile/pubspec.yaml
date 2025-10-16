@@ -115,3 +115,7 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+# 桌面端平台配置
+platforms:
+  android:
+  ios:

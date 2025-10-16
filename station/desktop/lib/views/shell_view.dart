@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:crypto/crypto.dart';
 import 'package:flutter/foundation.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:uuid/uuid.dart';
 import 'package:family_photo_desktop/services/local_server.dart';
 import 'package:family_photo_desktop/controllers/invite_controller.dart';
+import 'package:path/path.dart' as path;
 
 import 'package:family_photo_desktop/controllers/bootstrap_controller.dart';
 import 'package:family_photo_desktop/controllers/settings_controller.dart';
@@ -16,6 +18,8 @@ import 'package:family_photo_desktop/controllers/auth_controller.dart';
 import 'package:family_photo_desktop/database/db/database.dart';
 import 'package:family_photo_desktop/database/users/user_repository.dart';
 import 'package:family_photo_desktop/database/users/user.dart';
+import 'package:family_photo_desktop/controllers/storage_settings_controller.dart';
+import 'package:family_photo_desktop/storage/user_data_manager.dart';
 
 class ShellView extends StatelessWidget {
   final Widget body;
@@ -84,7 +88,9 @@ class ShellView extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   _NavItem(icon: Icons.dashboard, label: t.navDashboard, onTap: () {}),
-                  _NavItem(icon: Icons.photo_library, label: t.navLibrary, onTap: () {}),
+                  _NavItem(icon: Icons.photo_library, label: t.navLibrary, onTap: () {
+                    Get.to(() => const LibraryView(), transition: Transition.noTransition);
+                  }),
                   _NavItem(icon: Icons.photo_album, label: t.navAlbums, onTap: () {}),
                   if (auth?.currentUser.value?.isAdmin == true)
                     _NavItem(icon: Icons.people_outline, label: t.navUsers, onTap: () {
@@ -127,7 +133,7 @@ class ShellView extends StatelessWidget {
                               await auth?.logout();
                               // 返回到登录视图由 BootstrapView 根据状态切换
                             } else if (value == 'switch') {
-                              await auth?.logout();
+                              await auth?.startSwitch();
                             }
                           },
                         ),
@@ -187,6 +193,7 @@ class SettingsView extends StatelessWidget {
     final settings = Get.isRegistered<SettingsController>()
         ? Get.find<SettingsController>()
         : Get.put(SettingsController(), permanent: true);
+    final storageCtrl = Get.put(StorageSettingsController(), permanent: false);
     return ShellView(
       body: Padding(
         padding: const EdgeInsets.all(24),
@@ -214,7 +221,9 @@ class SettingsView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-
+            // 分区：通用配置
+            Text('通用配置', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(height: 24),
             // 语言设置
             Text(t.settingsLanguage, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
             const SizedBox(height: 12),
@@ -229,7 +238,6 @@ class SettingsView extends StatelessWidget {
                 );
               }).toList());
             }),
-
             const SizedBox(height: 24),
             // 主题设置
             Text(t.settingsTheme, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
@@ -241,11 +249,295 @@ class SettingsView extends StatelessWidget {
                 ChoiceChip(label: Text(t.themeDark), selected: mode == ThemeMode.dark, onSelected: (_) => settings.setThemeMode(ThemeMode.dark)),
               ]);
             }),
+
+            const SizedBox(height: 24),
+            // 分区：照片存储
+            Text('照片存储', style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+            const Divider(height: 24),
+            // 子分区：存储位置
+            Text('2.1 存储位置', style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const SizedBox(height: 12),
+            // 存储类型选择
+            Obx(() {
+              final type = storageCtrl.storageType.value;
+              return Row(children: [
+                ChoiceChip(
+                  label: const Text('本地目录'),
+                  selected: type == StorageUIType.local,
+                  onSelected: (_) => storageCtrl.storageType.value = StorageUIType.local,
+                ),
+                const SizedBox(width: 12),
+                ChoiceChip(
+                  label: const Text('SMB 网络存储'),
+                  selected: type == StorageUIType.smb,
+                  onSelected: (_) => storageCtrl.storageType.value = StorageUIType.smb,
+                ),
+              ]);
+            }),
+            const SizedBox(height: 16),
+            // 本地目录选择
+            Obx(() {
+              if (storageCtrl.storageType.value != StorageUIType.local) return const SizedBox.shrink();
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(children: [
+                    Expanded(
+                      child: TextFormField(
+                        readOnly: true,
+                        controller: TextEditingController(text: storageCtrl.localPath.value),
+                        decoration: const InputDecoration(labelText: '存储目录', border: OutlineInputBorder()),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    ElevatedButton.icon(onPressed: storageCtrl.pickLocalDirectory, icon: const Icon(Icons.folder_open), label: const Text('浏览')),
+                  ]),
+                  const SizedBox(height: 8),
+                  Wrap(spacing: 8, runSpacing: 8, children: UserDataManager.instance.getRecommendedStorageLocations().map((p) {
+                    return ActionChip(label: Text(p), onPressed: () => storageCtrl.localPath.value = p);
+                  }).toList()),
+                ],
+              );
+            }),
+            // SMB 输入区域
+            Obx(() {
+              if (storageCtrl.storageType.value != StorageUIType.smb) return const SizedBox.shrink();
+              return Column(
+                children: [
+                  Row(children: [
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: storageCtrl.smbHost.value,
+                        onChanged: (v) => storageCtrl.smbHost.value = v,
+                        decoration: const InputDecoration(labelText: '主机 (例如: fileserver)', border: OutlineInputBorder()),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: storageCtrl.smbShare.value,
+                        onChanged: (v) => storageCtrl.smbShare.value = v,
+                        decoration: const InputDecoration(labelText: '共享名 (例如: photos)', border: OutlineInputBorder()),
+                      ),
+                    ),
+                  ]),
+                  const SizedBox(height: 12),
+                  Row(children: [
+                    Expanded(
+                      child: TextFormField(
+                        initialValue: storageCtrl.smbUsername.value,
+                        onChanged: (v) => storageCtrl.smbUsername.value = v,
+                        decoration: const InputDecoration(labelText: '用户名 (可选)', border: OutlineInputBorder()),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: TextFormField(
+                        onChanged: (v) => storageCtrl.smbPassword.value = v,
+                        obscureText: true,
+                        decoration: const InputDecoration(labelText: '密码 (可选)', border: OutlineInputBorder()),
+                      ),
+                    ),
+                  ]),
+                ],
+              );
+            }),
+            const SizedBox(height: 12),
+            // 验证与保存
+            Obx(() {
+              return Row(children: [
+                ElevatedButton.icon(
+                  onPressed: storageCtrl.isValidating.value ? null : storageCtrl.validateAndSave,
+                  icon: const Icon(Icons.verified),
+                  label: Text(storageCtrl.isValidating.value ? '验证中...' : '验证并保存'),
+                ),
+                const SizedBox(width: 12),
+                if (storageCtrl.validateMessage.value.isNotEmpty)
+                  Row(children: [
+                    Icon(storageCtrl.validateOk.value ? Icons.check_circle : Icons.error_outline,
+                        color: storageCtrl.validateOk.value ? Colors.green : Colors.orange),
+                    const SizedBox(width: 6),
+                    Text(storageCtrl.validateMessage.value),
+                  ]),
+              ]);
+            }),
           ],
         ),
       ),
     );
   }
+}
+
+class LibraryView extends StatelessWidget {
+  const LibraryView({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final t = AppLocalizations.of(context)!;
+    final controller = Get.put(_LibraryController(), permanent: false);
+    return ShellView(
+      body: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Text(t.navLibrary, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+              const Spacer(),
+              Obx(() => TextButton.icon(
+                    onPressed: controller.isLoading.value ? null : () => controller.refresh(),
+                    icon: const Icon(Icons.refresh),
+                    label: Text(controller.isLoading.value ? '刷新中...' : '刷新'),
+                  )),
+            ]),
+            const SizedBox(height: 12),
+            // 用户选择 Chips
+            Obx(() {
+              final users = controller.users;
+              final selected = controller.selectedUsername.value;
+              if (users.isEmpty) {
+                return Text('暂无用户');
+              }
+              return SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(children: users.map((u) {
+                  final label = (u.displayName?.isNotEmpty == true) ? u.displayName! : u.username;
+                  final isSelected = selected == u.username;
+                  return Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ChoiceChip(
+                      label: Text(label),
+                      selected: isSelected,
+                      onSelected: (_) => controller.selectUser(u.username),
+                    ),
+                  );
+                }).toList()),
+              );
+            }),
+            const SizedBox(height: 16),
+            Expanded(
+              child: Obx(() {
+                if (controller.isLoading.value) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final photos = controller.photoPaths;
+                if (photos.isEmpty) {
+                  return Center(child: Text('该用户暂无照片'));
+                }
+                return GridView.builder(
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 5,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount: photos.length,
+                  itemBuilder: (context, index) {
+                    final p = photos[index];
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: Stack(children: [
+                        Positioned.fill(
+                          child: Image.file(
+                            File(p),
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stack) {
+                              return Container(
+                                color: Theme.of(context).colorScheme.surfaceContainerHighest,
+                                alignment: Alignment.center,
+                                child: const Icon(Icons.image_not_supported),
+                              );
+                            },
+                          ),
+                        ),
+                      ]),
+                    );
+                  },
+                );
+              }),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _LibraryController extends GetxController {
+  final users = <User>[].obs;
+  final selectedUsername = ''.obs;
+  final photoPaths = <String>[].obs;
+  final isLoading = false.obs;
+
+  late final UserRepository repo;
+
+  @override
+  void onInit() {
+    super.onInit();
+    final auth = Get.find<AuthController>();
+    repo = auth.users;
+    _init();
+  }
+
+  Future<void> _init() async {
+    await loadUsers();
+    // 默认选择当前登录用户或第一个用户
+    final auth = Get.find<AuthController>();
+    final current = auth.currentUser.value?.username;
+    if (users.isNotEmpty) {
+      selectedUsername.value = current ?? users.first.username;
+      await _loadPhotosFor(selectedUsername.value);
+    }
+  }
+
+  Future<void> loadUsers() async {
+    users.value = await repo.listAll();
+  }
+
+  Future<void> selectUser(String username) async {
+    if (selectedUsername.value == username) return;
+    selectedUsername.value = username;
+    await _loadPhotosFor(username);
+  }
+
+  Future<void> refresh() async {
+    await _loadPhotosFor(selectedUsername.value);
+  }
+
+  Future<void> _loadPhotosFor(String username) async {
+    if (username.isEmpty) return;
+    isLoading.value = true;
+    try {
+      final root = UserDataManager.instance.appDataDirectory;
+      final dir = Directory(path.join(root, 'photos', username));
+      if (!await dir.exists()) {
+        await dir.create(recursive: true);
+      }
+      final patterns = <String>{'jpg', 'jpeg', 'png', 'gif', 'webp'};
+      final entries = <_PhotoEntry>[];
+      await for (final entity in dir.list(followLinks: false)) {
+        if (entity is File) {
+          final ext = entity.path.split('.').last.toLowerCase();
+          if (!patterns.contains(ext)) continue;
+          try {
+            final s = await entity.stat();
+            entries.add(_PhotoEntry(entity.path, s.modified));
+          } catch (_) {
+            // ignore unreadable file
+          }
+        }
+      }
+      entries.sort((a, b) => b.modified.compareTo(a.modified));
+      photoPaths.value = entries.map((e) => e.path).toList();
+    } finally {
+      isLoading.value = false;
+    }
+  }
+}
+
+class _PhotoEntry {
+  final String path;
+  final DateTime modified;
+  _PhotoEntry(this.path, this.modified);
 }
 
 class UsersView extends StatelessWidget {
@@ -292,19 +584,25 @@ class UsersView extends StatelessWidget {
                       leading: CircleAvatar(child: Icon(u.isAdmin ? Icons.shield : Icons.person)),
                       title: Text(u.displayName?.isNotEmpty == true ? u.displayName! : u.username),
                       subtitle: Text(u.isAdmin ? t.usersRoleAdmin : t.usersRoleMember),
-                      trailing: Wrap(spacing: 8, children: [
-                        TextButton.icon(
-                          onPressed: () => _showResetPasswordDialog(context, controller, u),
-                          icon: const Icon(Icons.lock_reset),
-                          label: Text(t.usersResetPassword),
-                        ),
-                        if (!u.isAdmin)
+                      trailing: Obx(() {
+                        final desktopOnline = controller.presenceDesktop[u.username] ?? false;
+                        final mobileOnline = controller.presenceMobile[u.username] ?? false;
+                        return Wrap(spacing: 8, crossAxisAlignment: WrapCrossAlignment.center, children: [
+                          _presenceChip(context, '桌面', desktopOnline, Icons.desktop_windows),
+                          _presenceChip(context, '移动', mobileOnline, Icons.phone_iphone),
                           TextButton.icon(
-                            onPressed: () => _showDeleteUserDialog(context, controller, u),
-                            icon: const Icon(Icons.delete_outline),
-                            label: Text(t.usersDelete),
+                            onPressed: () => _showResetPasswordDialog(context, controller, u),
+                            icon: const Icon(Icons.lock_reset),
+                            label: Text(t.usersResetPassword),
                           ),
-                      ]),
+                          if (!u.isAdmin)
+                            TextButton.icon(
+                              onPressed: () => _showDeleteUserDialog(context, controller, u),
+                              icon: const Icon(Icons.delete_outline),
+                              label: Text(t.usersDelete),
+                            ),
+                        ]);
+                      }),
                     );
                   },
                 );
@@ -313,6 +611,19 @@ class UsersView extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _presenceChip(BuildContext context, String label, bool online, IconData icon) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final bg = online ? colorScheme.primaryContainer : colorScheme.surfaceContainerHighest;
+    final fg = online ? colorScheme.onPrimaryContainer : colorScheme.onSurfaceVariant;
+    return Chip(
+      avatar: Icon(icon, size: 18, color: fg),
+      label: Text('$label${online ? "在线" : "离线"}', style: TextStyle(color: fg)),
+      backgroundColor: bg,
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+      padding: const EdgeInsets.symmetric(horizontal: 6),
     );
   }
 
@@ -510,6 +821,10 @@ class UsersView extends StatelessWidget {
 class _UsersViewController extends GetxController {
   final users = <User>[].obs;
   final isLoading = true.obs;
+  // 在线状态：username -> device online
+  final presenceDesktop = <String, bool>{}.obs;
+  final presenceMobile = <String, bool>{}.obs;
+  Timer? _presenceTimer;
   // 注册二维码状态由 InviteController 管理
 
   late final UserRepository repo;
@@ -522,6 +837,7 @@ class _UsersViewController extends GetxController {
     repo = auth.users;
     db = repo.db;
     loadUsers();
+    _startPresencePolling();
     // 监听注册状态，完成后刷新列表
     if (Get.isRegistered<InviteController>()) {
       final invite = Get.find<InviteController>();
@@ -531,6 +847,12 @@ class _UsersViewController extends GetxController {
         }
       });
     }
+  }
+
+  @override
+  void onClose() {
+    _presenceTimer?.cancel();
+    super.onClose();
   }
 
   Future<void> loadUsers() async {
@@ -575,6 +897,53 @@ class _UsersViewController extends GetxController {
       return true;
     } catch (_) {
       return false;
+    }
+  }
+
+  void _startPresencePolling() {
+    // 立即拉取一次
+    _fetchPresenceStatus();
+    // 每8秒拉取一次
+    _presenceTimer?.cancel();
+    _presenceTimer = Timer.periodic(const Duration(seconds: 8), (_) => _fetchPresenceStatus());
+  }
+
+  Future<void> _fetchPresenceStatus() async {
+    try {
+      if (!Get.isRegistered<LocalServer>()) return;
+      final server = Get.find<LocalServer>();
+      final url = Uri.parse('http://${server.hostAddress}:${server.listenPort}/presence/status');
+      final client = HttpClient();
+      final req = await client.getUrl(url);
+      final res = await req.close();
+      if (res.statusCode != 200) {
+        client.close(force: true);
+        return;
+      }
+      final body = await res.transform(utf8.decoder).join();
+      client.close(force: true);
+      final data = jsonDecode(body);
+      if (data is! Map) return;
+      final usersPayload = data['users'];
+      if (usersPayload is! List) return;
+      final Map<String, bool> d = {};
+      final Map<String, bool> m = {};
+      for (final item in usersPayload) {
+        if (item is Map) {
+          final username = item['username'];
+          final online = item['online'];
+          if (username is String && online is Map) {
+            final desktop = online['desktop'] == true;
+            final mobile = online['mobile'] == true;
+            d[username] = desktop;
+            m[username] = mobile;
+          }
+        }
+      }
+      presenceDesktop.assignAll(d);
+      presenceMobile.assignAll(m);
+    } catch (_) {
+      // 忽略错误，保持现有状态
     }
   }
 

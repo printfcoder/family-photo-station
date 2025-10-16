@@ -45,5 +45,12 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+
+	<!-- Photos permission for reading user's photo library -->
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>需要访问您的照片以展示系统相册。</string>
+	<!-- Optional: permission for saving to photo library -->
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>需要保存照片到您的相册（用于备份/下载）。</string>
 </dict>
 </plist>
