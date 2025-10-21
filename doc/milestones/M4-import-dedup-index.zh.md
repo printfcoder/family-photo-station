@@ -39,3 +39,30 @@
 输出与交付物链接
 - 代码位置：station/desktop/lib/services/indexer
 - 文档链接：index.zh.md，MVP-scope.zh.md
+
+---
+
+## 功能设计包（M4）
+
+SQLite 表结构（草案）
+- users(user_id PK, name, role, dir_abs_path)
+- devices(device_id PK, user_id FK)
+- albums(album_id PK, user_id FK, name, is_encrypted BOOL, created_at, updated_at)
+- photos(photo_id PK, user_id FK, album_id FK, file_abs_path, sha256, taken_at, device_id, mime, encrypted BOOL)
+- previews(photo_id FK, blob/encrypted_blob, mime, generated_at)
+- tags(tag_id PK, user_id FK, name)
+- photo_tags(photo_id FK, tag_id FK)
+
+索引策略
+- 常用查询索引：photo(user_id, taken_at)、album(user_id, updated_at)、photo(user_id, album_id)
+- 去重：sha256 唯一约束（同 user_id 范围）；跨用户去重后续评估。
+
+预览队列
+- 策略：加密相册不生成明文预览；若生成则加密存储并关联相册密钥。
+- 失败重试：指数退避；错误库记录。
+
+一致性与审计
+- 事务化导入；文件与索引一一对应；变更记录审计轨迹。
+
+测试清单
+- 解析兼容性、去重正确性、预览生成率、索引吞吐、用户隔离查询、加密相册索引流程。

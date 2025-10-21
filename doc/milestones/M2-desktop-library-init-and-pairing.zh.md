@@ -15,6 +15,8 @@
 
 约束与边界
 - 局域网内配对；不做公网注册；移动端将在后续里程碑适配。
+- 多用户目录隔离：库根下按用户隔离子目录（例如 /LibraryRoot/{user_id}/），绝对路径持久化，权限隔离。
+- 管理员受限视图：管理员仅可查看用户清单与照片计数，不能浏览具体内容。
 
 技术要点
 - 二维码生成与解析；局域网发现（mDNS/UDP 广播占位）。
@@ -39,3 +41,35 @@
 输出与交付物链接
 - 代码位置：station/desktop/lib/modules/onboarding
 - 文档链接：index.zh.md，MVP-scope.zh.md
+
+---
+
+## 功能设计包（M2）
+
+范围与流程
+- 首启向导：欢迎 → 库根路径选择（绝对路径校验） → 生成设备ID/令牌 → 选择用户或创建用户 → 展示二维码/局域网发现 → 配对成功页。
+- 多用户：新建用户会创建 /LibraryRoot/{user_id}/ 目录；管理员视图仅显示用户清单与计数。
+
+数据结构（草案）
+- Config:
+  - library_root: string
+  - users: [{ user_id: string, name: string, dir_abs_path: string, role: 'user'|'admin' }]
+  - tokens: [{ device_id: string, user_id: string, token_id: string, expires_at: int64 }]
+- QR Payload:
+  - { device_id, token_id, user_id, issued_at, ttl_seconds }
+
+接口契约
+- OnboardingController（GetX）：
+  - pickLibraryRoot(): 验证绝对路径，不允许相对路径。
+  - createUser(name, role): 生成 user_id，创建目录并写入配置。
+  - issueToken(user_id): 生成令牌并持久化（安全存储/钥匙串）。
+  - generateQr(user_id): 返回二维码内容（包含短期令牌）。
+  - confirmPairing(device_id, token_id): 验证并完成配对。
+
+校验与测试
+- 用例：路径校验、用户创建目录、令牌生成与过期、二维码解析与配对耗时（≤30秒）、管理员受限视图。
+- 失败场景：路径不可写、钥匙串不可用、二维码失效、重复配对冲突。
+
+与 ADR 的关系
+- 目录隔离：参见 ADR-0001。
+- 管理员受限视图：参见 ADR-0003。

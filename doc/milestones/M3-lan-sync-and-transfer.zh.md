@@ -40,3 +40,31 @@
 输出与交付物链接
 - 代码位置：station/desktop/lib/services/sync
 - 文档链接：index.zh.md，MVP-scope.zh.md
+
+---
+
+## 功能设计包（M3）
+
+协议与端点（草案）
+- /upload/init: POST { device_id, user_id, file_id, size, sha256 } → { session_id, chunk_size }
+- /upload/chunk: PUT { session_id, index, sha256, bytes } → { ack }
+- /upload/complete: POST { session_id } → 校验文件级哈希并入队索引（M4）
+- 认证：令牌校验（与 user_id 绑定），仅局域网可访问。
+
+状态机与队列
+- 任务状态：PENDING → TRANSFERRING → VERIFYING → ENCRYPTING（若相册加密）→ DONE / FAILED
+- 并发与带宽：config.sync.max_concurrency、config.sync.max_bandwidth_kbps
+
+错误与重试
+- 错误码：
+  - 40x：认证失败/令牌过期/越权（禁止跨 user_id）
+  - 49x：分块校验失败/索引入队失败
+  - 50x：IO错误/磁盘满
+- 重试：指数退避，断点从最后确认块继续。
+
+安全与隐私
+- 明文传输仅限局域网；若相册启用加密，桌面侧在 complete 后进入加密队列（见 ADR-0002）。
+- 管理员不可查看具体传输内容，仅可见任务统计。
+
+测试清单
+- 断点续传、完整性校验、并发限制、带宽限制、LAN 访问限制、错误码覆盖与日志。
